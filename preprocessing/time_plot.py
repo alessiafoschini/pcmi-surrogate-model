@@ -6,7 +6,7 @@ import numpy as np
 import os
 
 
-df = pd.read_csv(f'/data/foschini/train_dataset.csv', sep=";")
+df = pd.read_csv(f'../pcmi_dataset.csv', sep=";")
 
 
 variables = [

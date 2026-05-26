@@ -20,7 +20,7 @@ from sklearn.metrics import mean_squared_error, r2_score, make_scorer, mean_abso
 # 1. Data Processing 
 # =======================
 # Load dataset 
-df = pd.read_csv(f'/data/foschini/train_dataset.csv', sep=';')
+df = pd.read_csv(f'pcmi_dataset.csv', sep=';')
 
 
 # Feature engineering 
@@ -451,7 +451,7 @@ results_df = pd.concat([preds_df,
                         res_df], 
                         axis=1)
 
-os.chdir("/data/foschini")
+os.chdir("/postprocessing")
 
 if model_complexity == "high":
     results_df.to_csv("predictions_deep.csv", sep = ";", index=False)

@@ -8,7 +8,7 @@ from sklearn.decomposition import PCA
 from balance_data import data_balancing
 
 # Load dataset 
-df = pd.read_csv(f'/data/foschini/train_dataset.csv', sep=';')
+df = pd.read_csv(f'../pcmi_dataset.csv', sep=';')
 
 # Feature engineering 
 # Create a column for Young's modulus
