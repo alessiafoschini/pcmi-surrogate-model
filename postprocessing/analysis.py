@@ -1,113 +1,61 @@
+# SCRIPT TO ANALYZE THE PREDICTIONS BY CREATING PLOTS
+
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.colors import to_rgba
-from mpl_toolkits.mplot3d import Axes3D
-from scipy.stats import norm, chisquare
 import pandas as pd
 import plotly.express as px
-import os
 import seaborn as sns
+import os
 
+from matplotlib.colors import to_rgba
+from scipy.stats import norm, chisquare
+
+#-------------------------------------------
+# Individuate parent directory 
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+
+# Add parent dir into Python memory
+if parent_dir not in sys.path:
+    sys.path.insert(0, parent_dir)
+#-------------------------------------------
+
+# Import the customized script
 from balance_data import data_balancing
+from split_data import data_splitting
+
+
+
+
+# Path to reach the dataset directory 
+data_path = os.path.join(parent_dir, "data", "pcmi_dataset.csv")
+
+file_index = input("Insert predictions file suffix\n Possible choices: 'd' - 's'\n >>")
+results_path = os.path.join(parent_dir, "data", f"predictions_{file_index}")
 
 
 # Load dataset 
-df = pd.read_csv(f'../pcmi_dataset.csv', sep=';')
+df = pd.read_csv(data_path, sep=';')
 
 
 # Balance the simulation data 
 df = data_balancing(df)
 
 
-# Divide train and test rods
-train_rods = [2, 3, 4, 5, 6, 7] 
-test_rods = [1] 
+# Split data into training and test sets
+# and get features and target lists
+train_df, test_df, features, target, rod_name_map = data_splitting(df)
 
-rod_name_map = {
-    1: 'AN1',
-    2: 'AN2',
-    3: 'AN3',
-    '1_predicted': 'Predicted AN1',
-    4: 'AN4',
-    5: 'AN8',
-    6: 'AN10',
-    7: 'AN11'
-}
   
-
-train_df = df[df["RodID"].isin(train_rods)].reset_index(drop=True)
-test_df = df[df["RodID"].isin(test_rods)].reset_index(drop=True)
-
-
-
 # Load predictions csv file and merge with test dataframe
-file_index = input("Insert predictions file suffix\n Possible choices: deep - shallow\n >>")
-
-results_df = pd.read_csv(f"predictions_{file_index}.csv", sep = ";")
+results_df = pd.read_csv(results_path, sep = ";")
 
 complete_test_df = pd.concat([test_df, results_df], axis=1)
 
 
-
-
-# Create lists for plots
-features = [
-    #"Timesteps",
-    "AverageBurnup",
-    "AveragePower",
-    #"AveragePowerRate",
-    #"HoldTime",
-    #"IntegratedPower",
-    #"AverageRodPressure",
-    "FGR",
-    #"InterfaceP_mid", 
-    "InterfaceP_end",
-    #"GapWidth_mid",
-    #"GapWidth_end",
-    #"TimeSinceClosure", 
-    #"CladInnerTemp_mid",
-    #"CladInnerTemp_end",
-    #"CladRadDisp_mid",
-    "CladRadDisp_end", 
-    #"CladInnerStress_r_mid",
-    "CladInnerStress_r_end",
-    #"CladInnerStrain_r_mid",
-    #"CladInnerStrain_r_end",
-    #"YoungsModulus_end",
-    #"CladInnerCreep_r_mid",
-    #"CladInnerCreep_r_end"
-]
-
-target = "RidgeHeight"
-
-
-# Individuate training and test data ranges 
-comparison_data = []
-
-for i, feat in enumerate(features+[target]):
-    train_min = train_df[feat].min()
-    train_max = train_df[feat].max()
-    test_min = test_df[feat].min()
-    test_max = test_df[feat].max()  
-    
-    if test_min > train_min or test_max < train_max:
-        in_range = 'YES'
-    else:
-        in_range = 'NO'
-    
-    comparison_data.append({
-        'Feature': feat,
-        'Train Min': train_min,
-        'Train Max': train_max,
-        'Test Min': test_min,
-        'Test Max': test_max,
-        'In_Range': in_range,
-      })
-
-df_range_compare = pd.DataFrame(comparison_data)
-print("### Range Comparison Training vs Test ###")
-print(df_range_compare.to_string(index=False))
-
+# Get train and test rods
+train_rods = train_df['RodID'].unique().tolist()
+test_rods = test_df['RodID'].unique().tolist()
 
 
 # Create lists
@@ -126,12 +74,12 @@ print(len(preds))
 
 
 # ---------------------------------------------------------
-# Plot temporal evolution of predictions, actual values and train rods targets 
-# ---------------------------------------------------------
+# PLOT EVOLUTION OVER BURNUP OF PREDICTIONS, ACTUAL VALUES AND TRAIN RODS TARGETS 
 
 
 #--------------------------------------------------------------------
 # FUNCTION TO CREATE SUBSETS FOR PLOTTING
+
 def create_subset(train_set, test_set, target):
     train_subset = train_set[['RodID', 'AverageBurnup', target]].copy()
     test_subset = test_set[['RodID', 'AverageBurnup', target]].copy()
@@ -144,12 +92,11 @@ def create_subset(train_set, test_set, target):
 #--------------------------------------------------------------------
 
 
-
-
+#-------------------------------------------
 # CREATE INTERACTIVE PLOTS 
-#--------------------------
+
 # Choose section to plot 
-section_id = input("Choose the section to plot (B for base, R for ramp): ")
+section_id = input("Choose the section to plot (B for BASE, R for RAMP):\n >> ")
 
 sec_train_df = train_df[train_df["SectionID"] == section_id].reset_index(drop=True)
 sec_test_df = complete_test_df[complete_test_df["SectionID"] == section_id].reset_index(drop=True)
@@ -158,13 +105,15 @@ output_folder = "time_plots_predictions"
 
 sec_train_subset, sec_test_subset, sec_preds_subset = create_subset(sec_train_df, sec_test_df, target)
 
+
 for test_rod in test_rods:
+
+    pred_label = f"{test_rod}_predicted"
 
     rod_output_folder = os.path.join(output_folder, f"rod{test_rod}")
 
     current_test = sec_test_subset[sec_test_subset['RodID'] == test_rod]
 
-    pred_label = f"{test_rod}_predicted"
     current_pred = sec_preds_subset[sec_preds_subset['RodID'] == pred_label]
   
     df_ridges_rod = pd.concat([sec_train_subset, current_test, current_pred], axis=0, ignore_index=True)
@@ -176,8 +125,8 @@ for test_rod in test_rods:
             color="RodID",
             title=f"Ridge Height: evolution over Burnup (section {section_id})",
             labels={
-            "x": "Burnup [kWd/kgU]",  
-            "value": "Ridge Height [m]"
+            "AverageBurnup": "Burnup [kWd/kgU]",  
+            target: "Ridge Height [m]"
             },
             markers=True
     )
@@ -209,81 +158,123 @@ for test_rod in test_rods:
     full_path = os.path.join(rod_output_folder, output_file)
     fig.write_html(full_path)
     print(f"File saved in: {full_path}")
+#-------------------------------------------
 
 
 
-
-
+#-------------------------------------------
 # CREATE STATIC PLOTS 
-#--------------------------
+# Here a limited number of training rods is assumed for a clear visualization 
 
-### Fix plot parameters ###
-# --- SET FONT & PDF CONFIGURATION ---
-plt.rcParams.update({
-    "font.family": "serif",
-    "font.serif": ["DejaVu Serif", "Liberation Serif", "Bitstream Vera Serif"], # Universal fallbacks
-    "pdf.fonttype": 42,          
-    "ps.fonttype": 42,
-    "font.size": 7.5,            # Lowered base size to offset tight cropping stretch
-    "axes.labelsize": 8.0,       # X and Y axis labels
-    "xtick.labelsize": 7.5,      # Tick numbers
-    "ytick.labelsize": 7.5,      
-    "legend.fontsize": 7.5,      # Legend labels
-})
-
-# --- MATCH DRAWING WINDOW TO A4 TEXT WIDTH ---
-# Choice A: Full page width figure (6.27 inches)
-# Choice B: Half page width figure (3.0 inches)
-fig_width = 6.27 
-
-fig_height = 6.5 
-fig = plt.figure(figsize=(fig_width, fig_height))
-
+plot_train = True # change if plotting all training rods is not feasible
 
 train_subset, test_subset, preds_subset = create_subset(train_df, complete_test_df, target)
 
+ramp_train_df = train_df[train_df["SectionID"] == 'R'].reset_index(drop=True)
+ramp_test_df = complete_test_df[complete_test_df["SectionID"] == 'R'].reset_index(drop=True)
 
-complete_subset = pd.concat([train_subset, test_subset, preds_subset], axis=0, ignore_index=True)
-sec_complete_subset = pd.concat([sec_train_subset, sec_test_subset, sec_preds_subset], axis=0, ignore_index=True)
+ramp_train_subset, ramp_test_subset, ramp_preds_subset = create_subset(ramp_train_df, ramp_test_df, target)
 
-rods = complete_subset["RodID"].unique()
-colors = ['#a9a9a9']*6 + ['#545454', '#000000'] 
-edge_colors = ['#a9a9a9']*6 + ['#545454', '#000000'] 
-markers = ['x', '*', '^', 's', 'D', 'v', 'o', 'o']
-line_styles = ['--']*6 + ['-', '-']
-line_width = [0.5]*6 + [1.2, 1.5]
-size_marker = [2]*7 + [2]
-alpha_values = [0.7]*6 + [1.0]*2
-alpha_marker = [to_rgba(colors[i], alpha_values[i]) for i in range(8)]
-alpha_edge   = [to_rgba(edge_colors[i], alpha_values[i]) for i in range(8)]
+# Subsets to concat
+subsets_to_concat = []
+ramp_subsets_to_concat = []
 
-color_dict = {rod: colors[i] for i, rod in enumerate(rods)}
-edge_dict    = {rod: edge_colors[i] for i, rod in enumerate(rods)}
-marker_dict = {rod: markers[i] for i, rod in enumerate(rods)}
-alpha_m_dict = {rod: alpha_marker[i] for i, rod in enumerate(rods)}
-alpha_e_dict = {rod: alpha_edge[i] for i, rod in enumerate(rods)}
-lines_dict = {rod: line_styles[i] for i, rod in enumerate(rods)}
-width_dict = {rod: line_width[i] for i, rod in enumerate(rods)}
-size_dict = {rod: size_marker[i] for i, rod in enumerate(rods)}
+if plot_train:
+    subsets_to_concat.append(train_subset)
+    ramp_subsets_to_concat.append(ramp_train_subset)
 
+subsets_to_concat.extend([test_subset, preds_subset])
+ramp_subsets_to_concat.extend([ramp_test_subset, ramp_preds_subset])
+
+complete_subset = pd.concat(subsets_to_concat, axis=0, ignore_index=True)
+ramp_subset = pd.concat(ramp_subsets_to_concat, axis=0, ignore_index=True)
+
+# Initialize styling dictionaries
+color_dict   = {}
+edge_dict    = {}
+marker_dict  = {}
+alpha_m_dict = {}
+alpha_e_dict = {}
+lines_dict   = {}
+width_dict   = {}
+size_dict    = {}
+
+
+
+train_markers = ['x', '*', '^', 'v', '<', '>', 'p', 'h']
+test_markers = ['o', 's', 'D', 'P', 'X', 'H'] 
+
+
+# Assign styles 
+if plot_train:
+    for idx, rod in enumerate(train_rods):
+        
+        current_marker = train_markers[idx % len(train_markers)]
+        
+        color_dict[rod]   = '#a9a9a9'  # light gray
+        edge_dict[rod]    = '#a9a9a9'
+        marker_dict[rod]  = current_marker
+        lines_dict[rod]   = '--'       
+        width_dict[rod]   = 0.5
+        size_dict[rod]    = 2
+        alpha_m_dict[rod] = to_rgba('#a9a9a9', 0.7)
+        alpha_e_dict[rod] = to_rgba('#a9a9a9', 0.7)
+        
+
+
+for idx, rod in enumerate(test_rods):
+    
+    pred_rod = f"{rod}_predicted"
+
+    # Update rod_name_map
+    name_test_rod = rod_name_map[rod]
+    rod_name_map[pred_rod] = f'Predicted {name_test_rod}'
+    
+    current_marker = test_markers[idx % len(test_markers)]
+    
+    # For actual values 
+    color_dict[rod]   = '#545454'  # dark gray
+    edge_dict[rod]    = '#545454'
+    marker_dict[rod]  = current_marker
+    lines_dict[rod]   = '-'
+    width_dict[rod]   = 1.2
+    size_dict[rod]    = 4
+    alpha_m_dict[rod] = to_rgba('#545454', 1.0)
+    alpha_e_dict[rod] = to_rgba('#545454', 1.0)
+    
+    # For predictions
+    color_dict[pred_rod]   = '#000000'  # black
+    edge_dict[pred_rod]    = '#000000'
+    marker_dict[pred_rod]  = current_marker 
+    lines_dict[pred_rod]   = '-'
+    width_dict[pred_rod]   = 1.5
+    size_dict[pred_rod]    = 4
+    alpha_m_dict[pred_rod] = to_rgba('#000000', 1.0)
+    alpha_e_dict[pred_rod] = to_rgba('#000000', 1.0)
+
+
+complete_rods = complete_subset["RodID"].unique().tolist()
 
 def create_pred_plots(subset):
-  for rod in rods:
-    rod_subset = subset[subset["RodID"] == rod]
-    x = rod_subset["AverageBurnup"].values * 1e-3
-    y = rod_subset[target].values * 1e6
+    for rod in complete_rods:
+        rod_subset = subset[subset["RodID"] == rod]
+        x = rod_subset["AverageBurnup"].values * 1e-3
+        y = rod_subset[target].values * 1e6
 
-    rod_name = rod_name_map.get(rod)
+        rod_name = rod_name_map.get(rod)
 
-    plt.plot(x, y, 
-            color = color_dict[rod],
-            marker = marker_dict[rod],
-            linestyle = lines_dict[rod],
-            linewidth = width_dict[rod],
-            markersize=size_dict[rod],
-            markerfacecolor=alpha_m_dict[rod], 
-            markeredgecolor=alpha_e_dict[rod],
-            label = f'{rod_name}')
+        plt.plot(x, y, 
+                color = color_dict[rod],
+                marker = marker_dict[rod],
+                linestyle = lines_dict[rod],
+                linewidth = width_dict[rod],
+                markersize=size_dict[rod],
+                markerfacecolor=alpha_m_dict[rod], 
+                markeredgecolor=alpha_e_dict[rod],
+                label = f'{rod_name}')
+
+
+plt.figure(figsize=(17, 12))
 
 # sublot1: complete dataset
 ax1 = plt.subplot(2, 1, 1)
@@ -308,7 +299,7 @@ ax2 = plt.subplot(2, 1, 2)
 for spine in ax2.spines.values():
     spine.set_linewidth(0.5)
 
-create_pred_plots(sec_complete_subset)
+create_pred_plots(ramp_subset)
 
 plt.xlabel('Burnup (GWd/tU)', labelpad=4)
 plt.ylabel('Ridge Height ($\mu$m)', labelpad=4)

@@ -1,8 +1,11 @@
+# FUNCTION TO MANIPULATE DATA POINTS 
+# Built after visualizing the plots of the variables over time 
+
 import pandas as pd
 
 def data_balancing(df):
     
-    # Start from 11,5 Gwd/t of Burnup --> to focus on the PCMI phase 
+    # Start from 11,5 GWd/t of Burnup --> to focus on the PCMI phase 
     df = df[df['AverageBurnup'] > 11500].reset_index(drop=True) 
 
     # Balance the dataset
@@ -15,7 +18,7 @@ def data_balancing(df):
         # remove first and last timesteps of each section to avoid unstable points from simulations
         if section == 'B':
             mask_time = x[time_col] <= 103527200
-            std_indices = x[mask_time].iloc[::10].index # skip every 10 points in BI to reduce single events dependency
+            std_indices = x[mask_time].iloc[::10].index # skip every 10 points in BI to reduce its importance
         elif section == 'R':
             mask_time = x[time_col] >= 103529000
             std_indices = x[mask_time].iloc[:-5].index

@@ -1,15 +1,34 @@
+# SCRIPT TO INVESTIGATE CORRELATIONS BETWEEN VARIABLES PAIRS --> TO SELECT IMPORTANT FEATURES
+
 import numpy as np
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+import os
+import sys
+
 from sklearn.preprocessing import RobustScaler
 from sklearn.decomposition import PCA
 
-from balance_data import data_balancing
+#-------------------------------------------
+# Individuate parent directory 
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+
+# Add parent dir into Python memory
+if parent_dir not in sys.path:
+    sys.path.insert(0, parent_dir)
+
+
+# Path to reach the dataset directory 
+data_path = os.path.join(parent_dir, "data", "pcmi_dataset.csv")
 
 # Load dataset 
-df = pd.read_csv(f'../pcmi_dataset.csv', sep=';')
+df = pd.read_csv(data_path, sep=';')
+#-------------------------------------------
 
+
+#-------------------------------------------
 # Feature engineering 
 # Create a column for Young's modulus
 df['YoungsModulus_end'] = (df['CladInnerStress_r_end']/df['CladInnerStrain_r_end']).fillna(0)
@@ -24,10 +43,8 @@ if pd.notna(first_closure_idx):
     t_start = df.loc[first_closure_idx, "Timesteps"]
 
     df.loc[first_closure_idx:, "TimeSinceClosure"] = df.loc[first_closure_idx:, "Timesteps"] - t_start
+#-------------------------------------------
 
-
-# Balance the simulation data
-df = data_balancing(df)
 
 
 # Create a dataframe for variables of interest only
@@ -66,7 +83,7 @@ data = df[variables]
 base_irr = data[df["SectionID"] == "B"].reset_index(drop=True)
 ramp = data[df["SectionID"] == "R"].reset_index(drop=True)
 
-
+#-------------------------------------------
 # PCA helper function
 def pca_analysis(X):
     scaler = RobustScaler()
@@ -80,11 +97,12 @@ pca, X_scaled, X_pca = pca_analysis(data)
 # --- PCA for both datasets ---
 pca_base, X_base_scaled, X_base_pca = pca_analysis(base_irr)
 pca_ramp, X_ramp_scaled, X_ramp_pca = pca_analysis(ramp) 
+#-------------------------------------------
 
 
-# -------------------------------------------------------
+#-------------------------------------------
 # Create PCA loadings dataframe
-# -------------------------------------------------------
+
 loadings = pd.DataFrame(
     pca.components_.T,
     columns=[f"PC{i+1}" for i in range(pca.n_components_)],
@@ -93,6 +111,7 @@ loadings = pd.DataFrame(
 
 print("\n===== PCA Loadings (Feature Weights) =====")
 print(loadings)
+#-------------------------------------------
 
 
 # -----------------------------------------------------------
@@ -117,8 +136,8 @@ def load_plot(pca, data, section_name):
     plt.grid(True)
     plt.axhline(0, color='grey', lw=1)
     plt.axvline(0, color='grey', lw=1)
-    plt.savefig(f'{section_name}_pca.png', bbox_inches='tight', dpi=150)
-    plt.show()
+    plt.savefig(f'pca_{section_name}.png', bbox_inches='tight', dpi=150)
+    
 
 
 # --- Loading plot for full dataset ---
@@ -147,7 +166,7 @@ axes[1].set_title("Correlation Matrix - POWER RAMP")
 
 plt.tight_layout()
 plt.savefig('corr_matrix.png', bbox_inches='tight', dpi=150)
-plt.show()
+
 
 
 

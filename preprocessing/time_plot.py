@@ -1,13 +1,29 @@
+# SCRIPT TO PLOT INTERACTIVE TIME PLOTS OF EACH VARIABLE
+
 import plotly.express as px
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
 import pandas as pd
 import numpy as np
 import os
+import sys
 
 
-df = pd.read_csv(f'../pcmi_dataset.csv', sep=";")
+# Individuate parent directory 
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
 
+# Add parent dir into Python memory
+if parent_dir not in sys.path:
+    sys.path.insert(0, parent_dir)
+
+# Path to reach the dataset directory 
+data_path = os.path.join(parent_dir, "data", "pcmi_dataset.csv")
+
+# Load dataset 
+df = pd.read_csv(data_path, sep=';')
+
+
+# Plot raw data to visualize the time evolution
+#and identify potential issues to be fixed in the preprocessing phase (e.g., data imbalance, outliers, etc.) 
 
 variables = [
     #"Timesteps",
@@ -35,7 +51,7 @@ variables = [
     "RidgeHeight"
 ]
 
-section_id = input("Choose the section to plot (B for base, R for ramp): ")
+section_id = input("Choose the section to plot (B for BASE, R for RAMP):\n >> ")
 df = df[df["SectionID"] == section_id].reset_index(drop=True)
 
 
