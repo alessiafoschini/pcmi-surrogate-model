@@ -147,7 +147,7 @@ reg = XGBRegressor(objective="reg:squarederror", random_state=42, n_jobs=-1) # n
 # SET HYPERTUNING
 
 # Parameter Grids
-model_arch = input("Choose the model architecture (D for DEEP, S for SHALLOW):\n >> ")
+model_arch = input("Choose the model architecture (d for DEEP, s for SHALLOW):\n >> ")
 print('\n')
 
 if model_arch == "D":

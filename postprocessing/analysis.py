@@ -1,4 +1,4 @@
-# SCRIPT TO ANALYZE THE PREDICTIONS BY CREATING PLOTS
+# SCRIPT TO ANALYZE PREDICTIONS
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -30,7 +30,7 @@ from split_data import data_splitting
 # Path to reach the dataset directory 
 data_path = os.path.join(parent_dir, "data", "pcmi_dataset.csv")
 
-file_index = input("Insert predictions file suffix\n Possible choices: 'd' - 's'\n >>")
+file_index = input("Insert predictions file suffix\n Possible choices: d - s\n >>")
 results_path = os.path.join(parent_dir, "data", f"predictions_{file_index}")
 
 
@@ -73,11 +73,12 @@ print(len(preds))
 
 
 
-# ---------------------------------------------------------
-# PLOT EVOLUTION OVER BURNUP OF PREDICTIONS, ACTUAL VALUES AND TRAIN RODS TARGETS 
+##--------------------------------------------------------
+# PREDICTIONS PLOTS
+##--------------------------------------------------------
 
 
-#--------------------------------------------------------------------
+#-------------------------------------------
 # FUNCTION TO CREATE SUBSETS FOR PLOTTING
 
 def create_subset(train_set, test_set, target):
@@ -89,11 +90,11 @@ def create_subset(train_set, test_set, target):
     preds_subset.columns = ['RodID', 'AverageBurnup', target]   
     
     return train_subset, test_subset, preds_subset
-#--------------------------------------------------------------------
+#-------------------------------------------
 
 
 #-------------------------------------------
-# CREATE INTERACTIVE PLOTS 
+# CREATE INTERACTIVE PLOTS
 
 # Choose section to plot 
 section_id = input("Choose the section to plot (B for BASE, R for RAMP):\n >> ")
@@ -101,7 +102,7 @@ section_id = input("Choose the section to plot (B for BASE, R for RAMP):\n >> ")
 sec_train_df = train_df[train_df["SectionID"] == section_id].reset_index(drop=True)
 sec_test_df = complete_test_df[complete_test_df["SectionID"] == section_id].reset_index(drop=True)
 
-output_folder = "time_plots_predictions"
+output_folder = "plots_predictions"
 
 sec_train_subset, sec_test_subset, sec_preds_subset = create_subset(sec_train_df, sec_test_df, target)
 
@@ -164,9 +165,8 @@ for test_rod in test_rods:
 
 #-------------------------------------------
 # CREATE STATIC PLOTS 
-# Here a limited number of training rods is assumed for a clear visualization 
 
-plot_train = True # change if plotting all training rods is not feasible
+plot_train = True # change to False if plotting all training rods is not feasible
 
 train_subset, test_subset, preds_subset = create_subset(train_df, complete_test_df, target)
 
@@ -244,7 +244,7 @@ for idx, rod in enumerate(test_rods):
     
     # For predictions
     color_dict[pred_rod]   = '#000000'  # black
-    edge_dict[pred_rod]    = '#000000'
+    edge_dict[pred_rod]    = '#000000'  #???????
     marker_dict[pred_rod]  = current_marker 
     lines_dict[pred_rod]   = '-'
     width_dict[pred_rod]   = 1.5
@@ -254,6 +254,7 @@ for idx, rod in enumerate(test_rods):
 
 
 complete_rods = complete_subset["RodID"].unique().tolist()
+
 
 def create_pred_plots(subset):
     for rod in complete_rods:
@@ -276,12 +277,9 @@ def create_pred_plots(subset):
 
 plt.figure(figsize=(17, 12))
 
+
 # sublot1: complete dataset
 ax1 = plt.subplot(2, 1, 1)
-
-
-for spine in ax1.spines.values():
-    spine.set_linewidth(0.5)
 
 create_pred_plots(complete_subset)
 
@@ -296,9 +294,6 @@ plt.grid(True, alpha=0.4)
 # sublot2: ramp dataset
 ax2 = plt.subplot(2, 1, 2)
 
-for spine in ax2.spines.values():
-    spine.set_linewidth(0.5)
-
 create_pred_plots(ramp_subset)
 
 plt.xlabel('Burnup (GWd/tU)', labelpad=4)
@@ -308,7 +303,7 @@ y_ticks = np.arange(2.5, 6.1, 0.5)
 ax2.set_yticks(y_ticks)
 plt.grid(True, alpha=0.4)
 
-#plt.legend(bbox_to_anchor=(1.02, 1.15), loc='upper right', borderaxespad=0., prop={'size': 18}, title="Rods", title_fontsize=18, frameon=True)
+
 plt.legend(
     loc='upper center', 
     bbox_to_anchor=(0.5, -0.25), 
@@ -319,96 +314,36 @@ plt.legend(
 )
 
 plt.tight_layout()
-#plt.subplots_adjust(hspace=0.3) 
 
-plt.savefig(f'xgb_predictions_{file_index}.svg', format='svg', bbox_inches='tight')
-
-
-
-##---------------------------------------------------------
-## 3D PLOTS
-#
-#def plot_3d_binned(xdata, ydata, xbin, ybin, title, xlabel, ylabel, filename):
-#  xdata = np.asarray(xdata).ravel()
-#  ydata = np.asarray(ydata).ravel()
-#  
-#  fig = plt.figure(figsize=(12, 8))
-#  ax = fig.add_subplot(111, projection='3d')
-#
-#  # Create bins
-#  xbins = np.arange(xdata.min(), xdata.max() + xbin, xbin)
-#  ybins = np.arange(ydata.min(), ydata.max() + ybin, ybin)
-#
-#  # 2d histogram
-#  hist, xedges, yedges = np.histogram2d(xdata, ydata, bins=[xbins, ybins])
-#
-#  # Create meshgrid for plotting
-#  xpos, ypos = np.meshgrid(xedges[:-1], yedges[:-1], indexing="ij")
-#
-#  xpos = xpos.ravel()
-#  ypos = ypos.ravel()
-#  zpos = 0
-#
-#  # bar dimensions 
-#  dx = xbin * 0.9
-#  dy = ybin * 0.9
-#  dz = hist.ravel()
-#
-#  mask = dz > 0
-#  xpos, ypos, dz = xpos[mask], ypos[mask], dz[mask]
-#
-#  # Colored according to density
-#  cmap = plt.get_cmap('Blues')
-#  max_dz = np.max(dz)
-#  colors = cmap(dz / max_dz)
-#
-#  ax.bar3d(xpos, ypos, zpos, dx, dy, dz, color=colors, alpha=0.8)
-#
-#  ax.set_xlabel(xlabel)
-#  ax.set_ylabel(ylabel) 
-#  ax.set_zlabel('Frequency')
-#  ax.set_title(title)
-#
-#  plt.savefig(filename, dpi=150)
-#  #plt.show()
-#  #plt.close()
-#
-#
-## Actual vs Predictions 3D density plot
-#plot_3d_binned(y_test, preds, 
-#               xbin=1e-7, ybin=1e-7, 
-#               title='3D Density: Actual vs Predictions', 
-#               xlabel='Actual values', ylabel='Predictions', 
-#               filename='3d_actual_vs_preds.png')
-#
-## Homoscedasticity check
-#plot_3d_binned(preds, std_residuals,
-#               xbin=1e-7, ybin=0.1,
-#               title='3D Density: Homoscedasticity Check', 
-#               xlabel='Predicted Values', ylabel='Std Residuals', 
-#               filename='3d_residuals_density.png')
+plt.savefig(f'predictions_{file_index}.svg', format='svg', bbox_inches='tight')
+#-------------------------------------------
 
 
 
+#-------------------------------------------
+# PLOT PREDICTIONS VS ACTUAL VALUES
 
-## Plot predictions vs actual values
-#for i in range(X_test.shape[1]):
-#    feature_test = X_test[:, i]
-#    plt.figure(figsize=(10, 6))
-#    sc = plt.scatter(y_test, preds, c=feature_test, cmap='turbo', alpha=0.6, s=20)
-#    plt.colorbar(sc, label=features[i])
-#    plt.plot([y_test.min(), y_test.max()], 
-#              [y_test.min(), y_test.max()], 
-#              'r--', lw=2, label='Perfect coincidence')
-#    plt.xlabel('Actual values')
-#    plt.ylabel('Predictions')
-#    plt.title(f'Predictions vs Actual values (XGBoost)\nRMSE = {rmse:.4e}')
-#    plt.legend()
-#    plt.grid(True, alpha=0.3)
-#    plt.savefig(f'xgb_predictions_colored{i}_AN.png', dpi=150)
+for i in range(X_test.shape[1]):
+    feature_test = X_test[:, i]
+    plt.figure(figsize=(10, 6))
+    sc = plt.scatter(y_test, preds, c=feature_test, cmap='turbo', alpha=0.6, s=20)
+    plt.colorbar(sc, label=features[i])
+    plt.plot([y_test.min(), y_test.max()], 
+              [y_test.min(), y_test.max()], 
+              'r--', lw=2, label='Perfect coincidence')
+    plt.xlabel('Actual values')
+    plt.ylabel('Predictions')
+    plt.title(f'Predictions vs Actual values\nRMSE = {rmse:.4e}')
+    plt.legend()
+    plt.grid(True, alpha=0.3)
+    plt.savefig(f'predictions_scatter_{features[i]}_{file_index}.png', dpi=150)
+#-------------------------------------------
 
 
-# Plot predictions & actual values distributions
+
+#-------------------------------------------
+# PLOT PREDICTIONS & ACTUAL VALUES DISTRIBUTIONS
+
 plt.figure(figsize=(20, 6))
 
 counts, bin_edges = np.histogram(y_test, bins='auto')
@@ -422,17 +357,19 @@ plt.title(f'Predictions vs Actual values distribution')
 plt.legend()
 plt.grid(True, alpha=0.4)
 
-plt.savefig(f'xgb_pred_distr_{file_index}.png', dpi=150)
+plt.savefig(f'pred_distr_{file_index}.png', dpi=150)
+#-------------------------------------------
+
 
 
 ##--------------------------------------------------------
 # RESIDUALS ANALYSIS
-#---------------------------------------------------------
-# Plot histogram of residuals (normality check)
+##--------------------------------------------------------
 
-fig_height = 3.5
+#-------------------------------------------
+# PLOT HISTOGRAM OF RESIDUALS (NORMALITY CHECK)
 
-fig = plt.figure(figsize=(fig_width, fig_height))
+plt.figure(figsize=(10, 8))
 
 fig.suptitle(
     'Residuals Analysis: Normality and Homoscedasticity Checks', 
@@ -445,18 +382,11 @@ ax1 = plt.subplot(1, 2, 1)
 
 ax1_top = ax1.twinx()
 
-for spine in ax1.spines.values():
-    spine.set_linewidth(0.5)
-for spine in ax1_top.spines.values():
-    spine.set_linewidth(0.5)
-
 
 ## individuate and save outliers
 lower_bound = -3
 upper_bound = 3
 
-#clean_mask = (std_residuals >= lower_bound) & (std_residuals <= upper_bound)
-#clean_residuals = std_residuals[clean_mask]
 
 outlier_mask = (std_residuals <= lower_bound) | (std_residuals >= upper_bound)
 
@@ -555,14 +485,14 @@ ax1.legend(
     title_fontsize=8, 
     frameon=True
 )
+#-------------------------------------------
 
 
+# PLOT RESIDUALS VS PREDICTED VALUES (HOMOSCEDASTICITY CHECK)
+#-------------------------------------------
 
-# Plot residuals vs predicted values (homoscedasticity check)
 ax2 = plt.subplot(1, 2, 2)
 
-for spine in ax2.spines.values():
-    spine.set_linewidth(0.5)
 
 # separate test rods with markers and sections with colors 
 marker_dict = {'B': 'o', 'R': '^'}
@@ -608,5 +538,4 @@ plt.grid(True, alpha=0.4)
 
 plt.tight_layout()
 
-#plt.savefig(f'xgb_residuals_{file_index}.png', dpi=150)
-plt.savefig(f'xgb_residuals_{file_index}.svg', format='svg', bbox_inches='tight')
+plt.savefig(f'residuals_{file_index}.svg', format='svg', bbox_inches='tight')
