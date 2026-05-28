@@ -6,6 +6,9 @@ import numpy as np
 import os
 import sys
 
+# Import the customized script
+from create_feat import feat_eng
+
 
 # Individuate parent directory 
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -18,11 +21,17 @@ if parent_dir not in sys.path:
 # Path to reach the dataset directory 
 data_path = os.path.join(parent_dir, "data", "pcmi_dataset.csv")
 
-# Load dataset 
+
+# LOAD DATASET 
 df = pd.read_csv(data_path, sep=';')
 
 
-# Plot raw data to visualize the time evolution
+# FEATURE ENGINEERING 
+df = feat_eng(df)
+
+
+
+# PLOT RAW DATA TO VISUALIZE THE TIME EVOLUTION
 #and identify potential issues to be fixed in the preprocessing phase (e.g., data imbalance, outliers, etc.) 
 
 variables = [
@@ -51,12 +60,16 @@ variables = [
     "RidgeHeight"
 ]
 
+
+# CHOOSE SECTION
 section_id = input("Choose the section to plot (B for BASE, R for RAMP):\n >> ")
 df = df[df["SectionID"] == section_id].reset_index(drop=True)
 
 
+# CREATE SUBFOLDER TO SAVE PLOTS
 output_folder = "time_plots"
-  
+os.makedirs(output_folder, exist_ok=True)
+
 
 for v in variables:
     fig = px.line(
@@ -75,7 +88,6 @@ for v in variables:
 
     # save the html file in the shared filesystem
     output_file = f"{v}_section{section_id}.html"
-    os.makedirs(output_folder, exist_ok=True)
     
     full_path = os.path.join(output_folder, output_file)
     

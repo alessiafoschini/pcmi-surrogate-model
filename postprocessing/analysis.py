@@ -6,6 +6,7 @@ import pandas as pd
 import plotly.express as px
 import seaborn as sns
 import os
+import sys
 
 from matplotlib.colors import to_rgba
 from scipy.stats import norm, chisquare
@@ -20,9 +21,10 @@ if parent_dir not in sys.path:
     sys.path.insert(0, parent_dir)
 #-------------------------------------------
 
-# Import the customized script
-from balance_data import data_balancing
-from split_data import data_splitting
+# Import the customized scripts 
+from preprocessing.balance_data import data_balancing
+from preprocessing.split_data import data_splitting 
+from preprocessing.create_feat import feat_eng
 
 
 
@@ -30,35 +32,39 @@ from split_data import data_splitting
 # Path to reach the dataset directory 
 data_path = os.path.join(parent_dir, "data", "pcmi_dataset.csv")
 
-file_index = input("Insert predictions file suffix\n Possible choices: d - s\n >>")
-results_path = os.path.join(parent_dir, "data", f"predictions_{file_index}")
+file_index = input("\nInsert predictions file suffix\n Possible choices: d - s\n >>")
+results_path = os.path.join(parent_dir, "data", f"predictions_{file_index}.csv")
 
 
-# Load dataset 
+# LOAD DATASET 
 df = pd.read_csv(data_path, sep=';')
 
 
-# Balance the simulation data 
+## FEATURE ENGINEERING 
+#df = feat_eng(df)
+
+
+# BALANCE THE SIMULATION DATA 
 df = data_balancing(df)
 
 
-# Split data into training and test sets
-# and get features and target lists
+# SPLIT DATA INTO TRAINING AND TEST SETS
+# AND GET FEATURES AND TARGET LISTS
 train_df, test_df, features, target, rod_name_map = data_splitting(df)
 
   
-# Load predictions csv file and merge with test dataframe
+# LOAD PREDICTIONS CSV FILE AND MERGE WITH TEST DATAFRAME
 results_df = pd.read_csv(results_path, sep = ";")
 
 complete_test_df = pd.concat([test_df, results_df], axis=1)
 
 
-# Get train and test rods
+# GET TRAIN AND TEST RODS
 train_rods = train_df['RodID'].unique().tolist()
 test_rods = test_df['RodID'].unique().tolist()
 
 
-# Create lists
+# CREATE LISTS
 X_test = test_df[features].values
 y_test = test_df[target].values
 
@@ -97,7 +103,7 @@ def create_subset(train_set, test_set, target):
 # CREATE INTERACTIVE PLOTS
 
 # Choose section to plot 
-section_id = input("Choose the section to plot (B for BASE, R for RAMP):\n >> ")
+section_id = input("\nChoose the section to plot (B for BASE, R for RAMP):\n >> ")
 
 sec_train_df = train_df[train_df["SectionID"] == section_id].reset_index(drop=True)
 sec_test_df = complete_test_df[complete_test_df["SectionID"] == section_id].reset_index(drop=True)
@@ -158,7 +164,7 @@ for test_rod in test_rods:
     os.makedirs(rod_output_folder, exist_ok=True)
     full_path = os.path.join(rod_output_folder, output_file)
     fig.write_html(full_path)
-    print(f"File saved in: {full_path}")
+    print(f"\nInteractive plot saved in: {full_path}")
 #-------------------------------------------
 
 
@@ -275,7 +281,7 @@ def create_pred_plots(subset):
                 label = f'{rod_name}')
 
 
-plt.figure(figsize=(17, 12))
+plt.figure(figsize=(13, 10))
 
 
 # sublot1: complete dataset
@@ -285,7 +291,7 @@ create_pred_plots(complete_subset)
 
 plt.xlabel('Burnup (GWd/tU)', labelpad=4)
 plt.ylabel('Ridge Height ($\mu$m)', labelpad=4)
-plt.title('Predictions of test rod AN1', fontsize=8.5, weight='bold', pad=8)
+plt.title('Predictions of test rod AN1', weight='bold', pad=8)
 y_ticks = np.arange(0, 6.1, 1.0)      
 ax1.set_yticks(y_ticks)
 plt.grid(True, alpha=0.4)
@@ -298,7 +304,7 @@ create_pred_plots(ramp_subset)
 
 plt.xlabel('Burnup (GWd/tU)', labelpad=4)
 plt.ylabel('Ridge Height ($\mu$m)', labelpad=4)
-plt.title('Focus on Ramp Section', fontsize=8.5, weight='bold', pad=8)
+plt.title('Focus on Ramp Section', weight='bold', pad=8)
 y_ticks = np.arange(2.5, 6.1, 0.5)      
 ax2.set_yticks(y_ticks)
 plt.grid(True, alpha=0.4)
@@ -323,6 +329,9 @@ plt.savefig(f'predictions_{file_index}.svg', format='svg', bbox_inches='tight')
 #-------------------------------------------
 # PLOT PREDICTIONS VS ACTUAL VALUES
 
+output_folder = "predictions_scatter_plots"
+os.makedirs(output_folder, exist_ok=True)
+
 for i in range(X_test.shape[1]):
     feature_test = X_test[:, i]
     plt.figure(figsize=(10, 6))
@@ -333,10 +342,12 @@ for i in range(X_test.shape[1]):
               'r--', lw=2, label='Perfect coincidence')
     plt.xlabel('Actual values')
     plt.ylabel('Predictions')
-    plt.title(f'Predictions vs Actual values\nRMSE = {rmse:.4e}')
+    plt.title(f'Predictions vs Actual values')
     plt.legend()
     plt.grid(True, alpha=0.3)
-    plt.savefig(f'predictions_scatter_{features[i]}_{file_index}.png', dpi=150)
+
+    file_path = os.path.join(output_folder, f'pred_scatter_{features[i]}_{file_index}.png')
+    plt.savefig(file_path, dpi=150)
 #-------------------------------------------
 
 
@@ -344,7 +355,7 @@ for i in range(X_test.shape[1]):
 #-------------------------------------------
 # PLOT PREDICTIONS & ACTUAL VALUES DISTRIBUTIONS
 
-plt.figure(figsize=(20, 6))
+plt.figure(figsize=(10, 6))
 
 counts, bin_edges = np.histogram(y_test, bins='auto')
 plt.hist(y_test, bins=bin_edges, density=True, alpha=0.7, color='skyblue', edgecolor='black', label = "Actual Values")
@@ -369,7 +380,7 @@ plt.savefig(f'pred_distr_{file_index}.png', dpi=150)
 #-------------------------------------------
 # PLOT HISTOGRAM OF RESIDUALS (NORMALITY CHECK)
 
-plt.figure(figsize=(10, 8))
+fig = plt.figure(figsize=(10, 8))
 
 fig.suptitle(
     'Residuals Analysis: Normality and Homoscedasticity Checks', 
@@ -448,11 +459,11 @@ for sect_id, info in sections.items():
     dof = len(f_obs) - 1 - 2 
     reduced_chi2 = chi2_stat / dof if dof > 0 else 0
 
-    print(f"[{label}]")
+    print(f"\n[{label}]")
     print(f"Fit parameters: mu = {mu:.4f}, sigma={sigma:.4f}")
     print(f"Chi-Square: {chi2_stat:.4f}")
     print(f"Reduced Chi-Square: {reduced_chi2:.4f}")
-    print(f"P-value: {p_val:.4e}")
+    print(f"P-value: {p_val:.4e}\n")
  
 ax1.set_ylabel('Density', labelpad=4)
 ax1.set_ylim(0, 1.2)

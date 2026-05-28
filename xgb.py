@@ -13,8 +13,9 @@ from sklearn.model_selection import RandomizedSearchCV, LeaveOneGroupOut
 from sklearn.metrics import mean_squared_error, r2_score
 
 # Import the customized scripts 
-from balance_data import data_balancing
-from split_data import data_splitting 
+from preprocessing.balance_data import data_balancing
+from preprocessing.split_data import data_splitting 
+from preprocessing.create_feat import feat_eng
 
 
 # Individuate current dir 
@@ -22,6 +23,7 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 
 # Path to reach the dataset directory 
 data_path = os.path.join(current_dir, "data", "pcmi_dataset.csv")
+
 
 
 # Dictionary to memorize execution times
@@ -38,23 +40,8 @@ execution_times = {}
 df = pd.read_csv(data_path, sep=';')
 
 
-#-------------------------------------------
 ## FEATURE ENGINEERING 
-
-## Create a column for Young's modulus
-#df['YoungsModulus_end'] = (df['CladInnerStress_r_end']/df['CladInnerStrain_r_end']).fillna(0)
-#
-## Create a column for time since gap closure
-## Identify where the gap closes
-#first_closure_idx = df.index[df["GapWidth_end"] == 0].min()
-#
-#df["TimeSinceClosure"] = 0.0
-#
-#if pd.notna(first_closure_idx):
-#    t_start = df.loc[first_closure_idx, "Timesteps"]
-#
-#    df.loc[first_closure_idx:, "TimeSinceClosure"] = df.loc[first_closure_idx:, "Timesteps"] - t_start
-#-------------------------------------------
+#df = feat_eng(df)
 
 
 #-------------------------------------------
@@ -77,6 +64,8 @@ print("\nStarting train-test splitting...")
 # Split data into training and test sets
 # and get features and target lists
 train_df, test_df, features, target, rod_name_map = data_splitting(df)
+
+train_df = train_df.sample(frac=1, random_state=42).reset_index(drop=True)
 #-------------------------------------------
 
 
@@ -122,7 +111,7 @@ y_train_scaled = scaler.fit_transform(y_train.reshape(-1, 1)).ravel()
 median_val = scaler.center_[0]
 iqr_val = scaler.scale_[0]
 
-print(f"Median Scaler: {median_val}")
+print(f"\nMedian Scaler: {median_val}")
 print(f"Interquartile Range (IQR) Scaler: {iqr_val}")
 #-------------------------------------------
 
@@ -150,32 +139,33 @@ reg = XGBRegressor(objective="reg:squarederror", random_state=42, n_jobs=-1) # n
 model_arch = input("Choose the model architecture (d for DEEP, s for SHALLOW):\n >> ")
 print('\n')
 
-if model_arch == "D":
-#
-param_grid = {
-    'n_estimators': [400, 600, 800, 1000],
-    'max_depth': [3, 4, 5, 6],
-    'learning_rate': [0.01, 0.05, 0.1],
-    'subsample': [0.5, 0.7],
-    'colsample_bytree': [0.5, 0.7],
-    'min_child_weight': [0.1, 0.5, 1.0],
-    'gamma': [0, 1e-4, 1e-2, 1],
-    'reg_alpha': [0, 1, 10],    # L1 regularization
-    'reg_lambda': [1, 10, 100]   # L2 regularization
-}
+if model_arch == "d": # A deeper ensemble with shallow base learners fit better complex relationships
+
+    param_grid = {
+        'n_estimators': [400, 600, 800, 1000],
+        'max_depth': [3, 4, 5, 6],
+        'learning_rate': [0.01, 0.05, 0.1],
+        'subsample': [0.5, 0.7],
+        'colsample_bytree': [0.5, 0.7],
+        'min_child_weight': [0.1, 0.5, 1.0],
+        'gamma': [0, 1e-4, 1e-2, 1],
+        'reg_alpha': [0, 1, 10],    # L1 regularization
+        'reg_lambda': [1, 10, 100]   # L2 regularization
+    }
   
-elif model_arch == "S":
-param_grid = { 
-    'n_estimators': [100, 200], 
-    'max_depth': [2, 3, 4], 
-    'learning_rate': [0.1, 0.3], 
-    'subsample': [0.5, 0.7], 
-    'colsample_bytree': [0.5, 0.7], 
-    'min_child_weight': [0.1, 0.5], 
-    'gamma': [0, 1e-6], 
-    'reg_alpha': [0, 1],
-    'reg_lambda': [1, 10] 
-}
+elif model_arch == "s": # Useful to get rapid results 
+
+    param_grid = { 
+        'n_estimators': [100, 200], 
+        'max_depth': [2, 3, 4], 
+        'learning_rate': [0.1, 0.3], 
+        'subsample': [0.5, 0.7], 
+        'colsample_bytree': [0.5, 0.7], 
+        'min_child_weight': [0.1, 0.5], 
+        'gamma': [0, 1e-6], 
+        'reg_alpha': [0, 1],
+        'reg_lambda': [1, 10] 
+    }
 
 
 # Define CV strategy --> LOGO since there are few rods (=folds) 
@@ -462,7 +452,7 @@ results_df = pd.concat([preds_df,
                         axis=1)
 
 
-results_path = os.path.join(parent_dir, "data", f"predictions_{model_arch}.csv")
+results_path = os.path.join(current_dir, "data", f"predictions_{model_arch}.csv")
 
 results_df.to_csv(results_path, sep = ";", index=False)
 #-------------------------------------------

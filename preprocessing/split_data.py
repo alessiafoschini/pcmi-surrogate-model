@@ -31,7 +31,7 @@ def data_splitting(df):
     }   
 
     # Divide the dataset into training and test sets based on rodID
-    train_df = (df[df["RodID"].isin(train_rods)].sample(frac=1, random_state=42).reset_index(drop=True))
+    train_df = (df[df["RodID"].isin(train_rods)].reset_index(drop=True))
     test_df = df[df["RodID"].isin(test_rods)].reset_index(drop=True) # no sampling --> for plotting
     #-------------------------------------------
 
@@ -65,7 +65,7 @@ def data_splitting(df):
         #"CladInnerCreep_r_end"
     ]
 
-    print('=' * 20)
+    print('\n=' * 20)
     print(f"Selected features: {features}")
     print('=' * 20)
 
@@ -98,7 +98,7 @@ def data_splitting(df):
           })
 
     df_range_compare = pd.DataFrame(comparison_data)
-    print("### Range Comparison Training vs Test ###")
+    print("\n### Range Comparison Training vs Test ###")
     print(df_range_compare.to_string(index=False))
     #-------------------------------------------
 

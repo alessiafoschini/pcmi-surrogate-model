@@ -7,10 +7,15 @@ import matplotlib.pyplot as plt
 import os
 import sys
 
-from sklearn.preprocessing import RobustScaler
+from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 
-#-------------------------------------------
+# Import the customized scripts
+from balance_data import data_balancing
+from create_feat import feat_eng
+
+
+
 # Individuate parent directory 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
@@ -23,31 +28,24 @@ if parent_dir not in sys.path:
 # Path to reach the dataset directory 
 data_path = os.path.join(parent_dir, "data", "pcmi_dataset.csv")
 
-# Load dataset 
+# LOAD DATASET 
 df = pd.read_csv(data_path, sep=';')
-#-------------------------------------------
+
+
+# FEATURE ENGINEERING 
+df = feat_eng(df)
+
+
+# BALANCE SIMULATION DATA 
+balance = False 
+
+if balance:
+    df = data_balancing(df)
 
 
 #-------------------------------------------
-# Feature engineering 
-# Create a column for Young's modulus
-df['YoungsModulus_end'] = (df['CladInnerStress_r_end']/df['CladInnerStrain_r_end']).fillna(0)
+# CHOOSE THE VARIABLES TO ANALYZE 
 
-# Create a column for time since gap closure
-# Identify where the gap closes
-first_closure_idx = df.index[df["GapWidth_end"] == 0].min()
-
-df["TimeSinceClosure"] = 0.0
-
-if pd.notna(first_closure_idx):
-    t_start = df.loc[first_closure_idx, "Timesteps"]
-
-    df.loc[first_closure_idx:, "TimeSinceClosure"] = df.loc[first_closure_idx:, "Timesteps"] - t_start
-#-------------------------------------------
-
-
-
-# Create a dataframe for variables of interest only
 variables = [
     #"Timesteps",
     "AverageBurnup",
@@ -56,7 +54,7 @@ variables = [
     #"HoldTime",
     #"IntegratedPower",
     #"AverageRodPressure",
-    #"FGR",
+    "FGR",
     #"InterfaceP_mid", 
     "InterfaceP_end",
     #"GapWidth_mid",
@@ -77,16 +75,16 @@ variables = [
 ]
 
 data = df[variables]
+#-------------------------------------------
 
-
-# Split per section
+# SPLIT PER SECTION
 base_irr = data[df["SectionID"] == "B"].reset_index(drop=True)
 ramp = data[df["SectionID"] == "R"].reset_index(drop=True)
 
 #-------------------------------------------
 # PCA helper function
 def pca_analysis(X):
-    scaler = RobustScaler()
+    scaler = StandardScaler()
     X_scaled = scaler.fit_transform(X)
     pca = PCA(n_components=0.96)
     X_pca = pca.fit_transform(X_scaled)
