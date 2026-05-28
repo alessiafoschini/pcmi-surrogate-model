@@ -1,5 +1,4 @@
 # FUNCTION TO MANIPULATE DATA POINTS 
-# Built after visualizing the plots of the variables over time 
 
 import pandas as pd
 
