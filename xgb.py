@@ -87,6 +87,7 @@ weights = sec_weights * prop_weights
 
 #-------------------------------------------
 # CREATE LISTS FOR FEATURES AND TARGET
+
 X_train = train_df[features].values
 y_train = train_df[target].values
 
@@ -139,7 +140,7 @@ reg = XGBRegressor(objective="reg:squarederror", random_state=42, n_jobs=-1) # n
 model_arch = input("Choose the model architecture (d for DEEP, s for SHALLOW):\n >> ")
 print('\n')
 
-if model_arch == "d": # A deeper ensemble with shallow base learners fit better complex relationships
+if model_arch == "d": # A deeper ensemble with shallow base learners better fit complex relationships
 
     param_grid = {
         'n_estimators': [400, 600, 800, 1000],
