@@ -197,7 +197,6 @@ ramp_subset = pd.concat(ramp_subsets_to_concat, axis=0, ignore_index=True)
 
 # Initialize styling dictionaries
 color_dict   = {}
-edge_dict    = {}
 marker_dict  = {}
 alpha_m_dict = {}
 alpha_e_dict = {}
@@ -218,7 +217,6 @@ if plot_train:
         current_marker = train_markers[idx % len(train_markers)]
         
         color_dict[rod]   = '#a9a9a9'  # light gray
-        edge_dict[rod]    = '#a9a9a9'
         marker_dict[rod]  = current_marker
         lines_dict[rod]   = '--'       
         width_dict[rod]   = 0.5
@@ -240,7 +238,6 @@ for idx, rod in enumerate(test_rods):
     
     # For actual values 
     color_dict[rod]   = '#545454'  # dark gray
-    edge_dict[rod]    = '#545454'
     marker_dict[rod]  = current_marker
     lines_dict[rod]   = '-'
     width_dict[rod]   = 1.2
@@ -250,7 +247,6 @@ for idx, rod in enumerate(test_rods):
     
     # For predictions
     color_dict[pred_rod]   = '#000000'  # black
-    edge_dict[pred_rod]    = '#000000'  #???????
     marker_dict[pred_rod]  = current_marker 
     lines_dict[pred_rod]   = '-'
     width_dict[pred_rod]   = 1.5

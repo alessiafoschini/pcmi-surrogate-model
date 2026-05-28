@@ -1,5 +1,10 @@
 # pcmi-surrogate-model
 
+The project represents an attempt of building a surrogate model for the analysis of PCMI effects. In the current configuration, the supervised regression model provides an estimate of the cladding diameter deformation due to the 'ridging effect'. 
+
+The PCMI dataset contains the data related to seven PWR-type rodlets belonging to the same experimental campaign. Therefore, an extension of the sample statistics is necessary to achieve model generalization and reliability. 
+
+
 ## Project Workflow
 
 Follow the steps below to process the raw data, train the model, and analyze the final results.
