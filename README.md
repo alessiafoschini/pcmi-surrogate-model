@@ -19,11 +19,11 @@ Inside this folder, the workflow is divided in two phases:
 - Data modification: 'create_feat.py', 'balance_data.py', 'split_data.py'
 
 
-### 2. Model Training, Validation, Testing
+### 2. Model Training and Validation
 Return to the root directory to run 'xgb.py': 
 
 e.g. python3 xgb.py | tee xgb_results_shallow.txt
 
 
-### 3. Results Analysis
+### 3. Model Testing and Predictions Analysis
 Navigate to the 'postprocessing/' directory to run 'analysis.py'

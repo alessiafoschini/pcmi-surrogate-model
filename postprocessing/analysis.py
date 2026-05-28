@@ -1,13 +1,16 @@
-# SCRIPT TO ANALYZE PREDICTIONS
+# SCRIPT TO TEST THE MODEL AND ANALYZE PREDICTIONS
 
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 import plotly.express as px
 import seaborn as sns
+import joblib
 import os
 import sys
+import xgboost as xgb
 
+from sklearn.metrics import mean_squared_error, r2_score
 from matplotlib.colors import to_rgba
 from scipy.stats import norm, chisquare
 
@@ -29,13 +32,12 @@ from preprocessing.create_feat import feat_eng
 
 
 
-# Path to reach the dataset directory 
+# Paths to reach the files 
 data_path = os.path.join(parent_dir, "data", "pcmi_dataset.csv")
+model_path = os.path.join(parent_dir, "xgb_model.json")
+scaler_path = os.path.join(parent_dir, "target_scaler.pkl")
 
-file_index = input("\nInsert predictions file suffix\n Possible choices: d - s\n >>")
-results_path = os.path.join(parent_dir, "data", f"predictions_{file_index}.csv")
-
-
+#-----------------------------------------
 # LOAD DATASET 
 df = pd.read_csv(data_path, sep=';')
 
@@ -51,30 +53,57 @@ df = data_balancing(df)
 # SPLIT DATA INTO TRAINING AND TEST SETS
 # AND GET FEATURES AND TARGET LISTS
 train_df, test_df, features, target, rod_name_map = data_splitting(df)
+#-----------------------------------------
 
-  
-# LOAD PREDICTIONS CSV FILE AND MERGE WITH TEST DATAFRAME
-results_df = pd.read_csv(results_path, sep = ";")
-
-complete_test_df = pd.concat([test_df, results_df], axis=1)
 
 
 # GET TRAIN AND TEST RODS
 train_rods = train_df['RodID'].unique().tolist()
 test_rods = test_df['RodID'].unique().tolist()
 
-
 # CREATE LISTS
 X_test = test_df[features].values
 y_test = test_df[target].values
 
-preds = results_df["PredictedRidgeHeight"].values
 
-std_residuals = results_df["StandardizedResidual"].values
 
-# Check if the length is consistent 
-print(len(y_test))
-print(len(preds))
+#-----------------------------------------
+# TEST THE OPTIMAL MODEL
+
+print("\nLoading model and target scaler...")
+
+model = xgb.XGBRegressor()
+model.load_model(model_path)
+
+scaler = joblib.load(scaler_path)
+
+
+print("\nMaking predictions on test set...")
+
+preds_scaled = model.predict(X_test).flatten()
+preds = scaler.inverse_transform(preds_scaled.reshape(-1, 1)).flatten()
+
+
+# PRINT EVALUATION METRICS
+rmse = np.sqrt(mean_squared_error(y_test, preds))
+print(f"\nFinal RMSE on the test set: {rmse}")
+
+r2 = r2_score(y_test, preds)
+print(f"R² Score on the test set: {r2}")
+
+
+# COMPUTE STANDARDIZED RESIDUALS 
+std_residuals = (preds - y_test) / rmse 
+
+
+# EXPAND TEST DATAFRAME
+preds_df = pd.Series(preds, name = "PredictedRidgeHeight").reset_index(drop=True)
+res_df = pd.Series(std_residuals, name='StandardizedResidual').reset_index(drop=True)
+
+complete_test_df = pd.concat([test_df, preds_df, res_df], axis=1)
+#----------------------------------------
+
+
 
 
 
@@ -287,7 +316,7 @@ create_pred_plots(complete_subset)
 
 plt.xlabel('Burnup (GWd/tU)', labelpad=4)
 plt.ylabel('Ridge Height ($\mu$m)', labelpad=4)
-plt.title('Predictions of test rod AN1', weight='bold', pad=8)
+plt.title('Predictions of Test Set', weight='bold', pad=8)
 y_ticks = np.arange(0, 6.1, 1.0)      
 ax1.set_yticks(y_ticks)
 plt.grid(True, alpha=0.4)
@@ -336,9 +365,9 @@ for i in range(X_test.shape[1]):
     plt.plot([y_test.min(), y_test.max()], 
               [y_test.min(), y_test.max()], 
               'r--', lw=2, label='Perfect coincidence')
-    plt.xlabel('Actual values')
+    plt.xlabel('Actual Values')
     plt.ylabel('Predictions')
-    plt.title(f'Predictions vs Actual values')
+    plt.title(f'Predictions vs Actual Values\n RMSE = {rmse:.4e}')
     plt.legend()
     plt.grid(True, alpha=0.3)
 
@@ -360,7 +389,7 @@ plt.hist(preds, bins=bin_edges, density=True, alpha=0.7, color='lightcoral', edg
 
 plt.xlabel('Ridge Height [m]')
 plt.ylabel('Frequency')
-plt.title(f'Predictions vs Actual values distribution')
+plt.title(f'Predictions vs Actual Values Distribution')
 plt.legend()
 plt.grid(True, alpha=0.4)
 
@@ -379,7 +408,7 @@ plt.savefig(f'pred_distr_{file_index}.png', dpi=150)
 fig = plt.figure(figsize=(10, 8))
 
 fig.suptitle(
-    'Residuals Analysis: Normality and Homoscedasticity Checks', 
+    f'Residuals Analysis: Normality and Homoscedasticity Checks\n RMSE = {rmse:.4e}', 
     fontsize=8.5, 
     weight='bold',
     y=0.98          # Adjusts the vertical position so it doesn't crowd the top axis lines
@@ -390,7 +419,7 @@ ax1 = plt.subplot(1, 2, 1)
 ax1_top = ax1.twinx()
 
 
-## individuate and save outliers
+## INDIVIDUATE AND SAVE OUTLIERS
 lower_bound = -3
 upper_bound = 3
 
@@ -406,7 +435,7 @@ outliers_df = pd.concat([feature_outliers, target_outliers, preds_outliers, resi
 outliers_df.to_csv(f"difficult_to_predict_{file_index}.csv", sep = ";", index=False)
 
 
-# Fit with normal distribution 
+# FIT WITH NORMAL DISTRIBUTION 
 sections = {
     "B": {"data": complete_test_df[complete_test_df["SectionID"] == "B"]["StandardizedResidual"].values, "color": "limegreen", "label": "BI", "linestyle": "--", "linecolor": "green", "ax": ax1},
     "R": {"data": complete_test_df[complete_test_df["SectionID"] == "R"]["StandardizedResidual"].values, "color": "salmon", "label": "Ramp", "linestyle": "-", "linecolor": "red", "ax": ax1_top}

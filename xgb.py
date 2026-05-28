@@ -5,12 +5,12 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import xgboost as xgb
 import time
+import joblib
 import os
 
 from xgboost import XGBRegressor
 from sklearn.preprocessing import RobustScaler, StandardScaler
 from sklearn.model_selection import RandomizedSearchCV, LeaveOneGroupOut
-from sklearn.metrics import mean_squared_error, r2_score
 
 # Import the customized scripts 
 from preprocessing.balance_data import data_balancing
@@ -65,6 +65,7 @@ print("\nStarting train-test splitting...")
 # and get features and target lists
 train_df, test_df, features, target, rod_name_map = data_splitting(df)
 
+# Shuffle the training dataset
 train_df = train_df.sample(frac=1, random_state=42).reset_index(drop=True)
 #-------------------------------------------
 
@@ -100,7 +101,7 @@ print(f"Test set dimension: {y_test.shape}")
 
 
 #-------------------------------------------
-# SCALE TARGET
+# SCALE TARGET AND SAVE SCALER PARAMETERS
 
 # Log transform
 #log_y_train = np.log(y_train)
@@ -108,6 +109,9 @@ print(f"Test set dimension: {y_test.shape}")
 # Robust scaling
 scaler = RobustScaler()
 y_train_scaled = scaler.fit_transform(y_train.reshape(-1, 1)).ravel()
+
+# Save scaler 
+joblib.dump(scaler, "target_scaler.pkl")
 
 median_val = scaler.center_[0]
 iqr_val = scaler.scale_[0]
@@ -387,11 +391,11 @@ plt.savefig(f'loss_curve_{model_arch}.png', bbox_inches='tight', dpi=150)
 
 
 # ===================================
-# 4. Model Testing
+# 4. Model Final Training 
 # ===================================
 
 print('\n')
-print("\n----- Model Testing -----")
+print("\n----- Model Final Training -----")
 print("\nStarting final training on the entire training set...")
 
 #-------------------------------------------
@@ -419,44 +423,11 @@ final_training = final_xgb.fit(X_train, y_train_scaled, verbose=0, sample_weight
 execution_times['Final Training'] = (time.time() - start_final_train) / 60
 
 
-final_xgb.save_model('final_model.json')
+final_xgb.save_model('xgb_model.json')
 print("\nModel saved!")
 #-------------------------------------------
 
 
-#-------------------------------------------
-# MAKE PREDICTIONS AND SAVE
-
-print("\nMaking predictions on test set and saving...")
-preds_scaled = final_xgb.predict(X_test).flatten()
-preds = scaler.inverse_transform(preds_scaled.reshape(-1, 1)).flatten()
-
-
-# Print evaluation metrics
-rmse = np.sqrt(mean_squared_error(y_test, preds))
-print(f"\nFinal RMSE on the test set: {rmse}")
-
-r2 = r2_score(y_test, preds)
-print(f"R² Score on the test set: {r2}")
-
-
-# Compute standardized residuals 
-std_residuals = (preds - y_test) / rmse 
-
-
-# Save results
-preds_df = pd.Series(preds, name = "PredictedRidgeHeight").reset_index(drop=True)
-res_df = pd.Series(std_residuals, name='StandardizedResidual').reset_index(drop=True)
-
-results_df = pd.concat([preds_df, 
-                        res_df], 
-                        axis=1)
-
-
-results_path = os.path.join(current_dir, "data", f"predictions_{model_arch}.csv")
-
-results_df.to_csv(results_path, sep = ";", index=False)
-#-------------------------------------------
 
 
 # PRINT TRAINING TIMES
