@@ -1,8 +1,8 @@
 # pcmi-surrogate-model
 
-The project represents an attempt of building a surrogate model for the analysis of PCMI effects. In the current configuration, the supervised regression model provides an estimate of the cladding diameter deformation due to the 'ridging effect'. 
+The project represents an attempt of building a surrogate model to analyze PCMI effects in Light Water Reactors. In the current configuration, the supervised regression model provides an estimate of the cladding diameter deformation due to the 'ridging effect'. 
 
-The PCMI dataset contains the data related to seven PWR-type rodlets belonging to the same experimental campaign. Therefore, an extension of the sample statistics is necessary to achieve model generalization and reliability. 
+The PCMI dataset, generated through 2D deterministic simulations, contains the thermomechanical variables related to seven PWR-type rodlets belonging to the same experimental campaign. Therefore, an extension of the sample statistics is necessary to achieve model generalization and reliability. 
 
 
 ## Project Workflow
@@ -22,8 +22,17 @@ Inside this folder, the workflow is divided in two phases:
 ### 2. Model Training and Validation
 Return to the root directory to run 'xgb.py': 
 
-e.g. python3 xgb.py | tee xgb_results_shallow.txt
+>> python3 xgb.py | tee xgb_output_s.txt
 
 
 ### 3. Model Testing and Predictions Analysis
-Navigate to the 'postprocessing/' directory to run 'analysis.py'
+Navigate to the 'postprocessing/' directory to run 'analysis.py':
+
+>> python3 analysis.py | tee results_eval_s.txt
+
+
+### Skip to the 3rd point 
+The file 'xgb_model_d.json' contains a pretrained model with a deep architecture. 
+The file 'target_scaler.pkl' contains the scaler parameters. 
+
+Run directly 'analysis.py' if want to test this model and analyze its results. 

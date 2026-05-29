@@ -64,8 +64,9 @@ def data_splitting(df):
         #"CladInnerCreep_r_mid",
         #"CladInnerCreep_r_end"
     ]
-
-    print('\n=' * 20)
+    
+    print('\n')
+    print('=' * 20)
     print(f"Selected features: {features}")
     print('=' * 20)
 

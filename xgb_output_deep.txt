@@ -1,0 +1,711 @@
+----- Dataset splitting -----
+
+Starting train-test splitting...
+
+Train rods: [2, 3, 4, 5, 6, 7]
+Test rods: [1]
+
+====================
+Selected features: ['AverageBurnup', 'AveragePower', 'FGR', 'InterfaceP_end', 'CladRadDisp_end', 'CladInnerStress_r_end']
+====================
+
+### Range Comparison Training vs Test ###
+              Feature     Train Min     Train Max      Test Min      Test Max In_Range
+        AverageBurnup  1.150179e+04  3.498615e+04  1.150385e+04  3.466429e+04      YES
+         AveragePower  3.802862e+05  6.771590e+08  9.390536e+05  6.727684e+08      YES
+                  FGR  7.295372e-02  2.967882e+01  1.355689e-01  2.902515e+01      YES
+       InterfaceP_end  0.000000e+00  6.297010e+07  0.000000e+00  5.972506e+07      YES
+      CladRadDisp_end -2.281475e-05  1.414670e-05 -2.002624e-05  1.394293e-05      YES
+CladInnerStress_r_end -4.762419e+07 -1.398286e+06 -4.494413e+07 -5.330700e+06      YES
+          RidgeHeight  0.000000e+00  5.671809e-06  0.000000e+00  5.769951e-06       NO
+
+Training set dimension: (2118,)
+Test set dimension: (382,)
+
+Median Scaler: 4.071339044825e-06
+Interquartile Range (IQR) Scaler: 1.889176684250002e-06
+
+
+
+----- Hypertuning -----
+
+Starting Hyperparameter Tuning with RandomizedSearchCV...
+
+CV strategy: LOGO (GROUP=ROD)
+Choose the model architecture (d for DEEP, s for SHALLOW):
+ >> 
+
+Fitting 6 folds for each of 30 candidates, totalling 180 fits
+
+Best parameters found:
+  subsample: 0.7
+  reg_lambda: 100
+  reg_alpha: 0
+  n_estimators: 1000
+  min_child_weight: 0.5
+  max_depth: 3
+  learning_rate: 0.05
+  gamma: 0
+  colsample_bytree: 0.7
+
+Best CV negative MSE: -0.0100
+
+
+
+----- Model Validation -----
+
+Starting Cross Validation (LOGO)...
+
+Check if the best parameters are correcly loaded:
+{'subsample': 0.7, 'reg_lambda': 100, 'reg_alpha': 0, 'min_child_weight': 0.5, 'max_depth': 3, 'learning_rate': 0.05, 'gamma': 0, 'colsample_bytree': 0.7, 'objective': 'reg:squarederror', 'eval_metric': 'rmse', 'random_state': 42, 'n_jobs': -1}
+
+
+
+Processing fold 1/6...
+
+Validation RodID: AN2
+[0]	train-rmse:0.43648	val-rmse:0.87080
+[10]	train-rmse:0.28317	val-rmse:0.63377
+[20]	train-rmse:0.18928	val-rmse:0.48081
+[30]	train-rmse:0.13108	val-rmse:0.37152
+[40]	train-rmse:0.09389	val-rmse:0.29639
+[50]	train-rmse:0.06994	val-rmse:0.24449
+[60]	train-rmse:0.05456	val-rmse:0.20848
+[70]	train-rmse:0.04480	val-rmse:0.18695
+[80]	train-rmse:0.03825	val-rmse:0.17121
+[90]	train-rmse:0.03354	val-rmse:0.16032
+[100]	train-rmse:0.03027	val-rmse:0.15146
+[110]	train-rmse:0.02797	val-rmse:0.14665
+[120]	train-rmse:0.02629	val-rmse:0.14206
+[130]	train-rmse:0.02481	val-rmse:0.13856
+[140]	train-rmse:0.02390	val-rmse:0.13706
+[150]	train-rmse:0.02293	val-rmse:0.13448
+[160]	train-rmse:0.02218	val-rmse:0.13285
+[170]	train-rmse:0.02147	val-rmse:0.13158
+[180]	train-rmse:0.02079	val-rmse:0.13023
+[190]	train-rmse:0.02023	val-rmse:0.12921
+[200]	train-rmse:0.01973	val-rmse:0.12840
+[210]	train-rmse:0.01937	val-rmse:0.12802
+[220]	train-rmse:0.01905	val-rmse:0.12746
+[230]	train-rmse:0.01859	val-rmse:0.12680
+[240]	train-rmse:0.01822	val-rmse:0.12624
+[250]	train-rmse:0.01792	val-rmse:0.12572
+[260]	train-rmse:0.01754	val-rmse:0.12526
+[270]	train-rmse:0.01724	val-rmse:0.12465
+[280]	train-rmse:0.01691	val-rmse:0.12394
+[290]	train-rmse:0.01662	val-rmse:0.12345
+[300]	train-rmse:0.01637	val-rmse:0.12329
+[310]	train-rmse:0.01612	val-rmse:0.12282
+[320]	train-rmse:0.01588	val-rmse:0.12238
+[330]	train-rmse:0.01563	val-rmse:0.12189
+[340]	train-rmse:0.01539	val-rmse:0.12186
+[350]	train-rmse:0.01520	val-rmse:0.12148
+[360]	train-rmse:0.01499	val-rmse:0.12125
+[370]	train-rmse:0.01479	val-rmse:0.12102
+[380]	train-rmse:0.01462	val-rmse:0.12081
+[390]	train-rmse:0.01444	val-rmse:0.12056
+[400]	train-rmse:0.01431	val-rmse:0.12027
+[410]	train-rmse:0.01418	val-rmse:0.12015
+[420]	train-rmse:0.01401	val-rmse:0.11987
+[430]	train-rmse:0.01384	val-rmse:0.11969
+[440]	train-rmse:0.01366	val-rmse:0.11956
+[450]	train-rmse:0.01354	val-rmse:0.11935
+[460]	train-rmse:0.01339	val-rmse:0.11922
+[470]	train-rmse:0.01326	val-rmse:0.11912
+[480]	train-rmse:0.01311	val-rmse:0.11886
+[490]	train-rmse:0.01297	val-rmse:0.11875
+[500]	train-rmse:0.01285	val-rmse:0.11864
+[510]	train-rmse:0.01274	val-rmse:0.11841
+[520]	train-rmse:0.01263	val-rmse:0.11843
+[530]	train-rmse:0.01251	val-rmse:0.11830
+[540]	train-rmse:0.01243	val-rmse:0.11814
+[550]	train-rmse:0.01231	val-rmse:0.11798
+[560]	train-rmse:0.01218	val-rmse:0.11781
+[570]	train-rmse:0.01209	val-rmse:0.11764
+[580]	train-rmse:0.01200	val-rmse:0.11755
+[590]	train-rmse:0.01188	val-rmse:0.11744
+[600]	train-rmse:0.01177	val-rmse:0.11754
+[610]	train-rmse:0.01169	val-rmse:0.11753
+[620]	train-rmse:0.01160	val-rmse:0.11745
+[630]	train-rmse:0.01152	val-rmse:0.11724
+[640]	train-rmse:0.01143	val-rmse:0.11717
+[650]	train-rmse:0.01135	val-rmse:0.11714
+[660]	train-rmse:0.01128	val-rmse:0.11711
+[670]	train-rmse:0.01120	val-rmse:0.11699
+[680]	train-rmse:0.01111	val-rmse:0.11696
+[690]	train-rmse:0.01104	val-rmse:0.11681
+[700]	train-rmse:0.01098	val-rmse:0.11676
+[710]	train-rmse:0.01091	val-rmse:0.11680
+[720]	train-rmse:0.01084	val-rmse:0.11684
+[730]	train-rmse:0.01077	val-rmse:0.11666
+[740]	train-rmse:0.01071	val-rmse:0.11657
+[750]	train-rmse:0.01065	val-rmse:0.11652
+[760]	train-rmse:0.01059	val-rmse:0.11654
+[770]	train-rmse:0.01054	val-rmse:0.11652
+[780]	train-rmse:0.01047	val-rmse:0.11639
+[790]	train-rmse:0.01040	val-rmse:0.11638
+[800]	train-rmse:0.01034	val-rmse:0.11633
+[810]	train-rmse:0.01028	val-rmse:0.11629
+[820]	train-rmse:0.01022	val-rmse:0.11629
+[830]	train-rmse:0.01015	val-rmse:0.11621
+[840]	train-rmse:0.01010	val-rmse:0.11614
+[850]	train-rmse:0.01005	val-rmse:0.11607
+[860]	train-rmse:0.01000	val-rmse:0.11605
+[870]	train-rmse:0.00994	val-rmse:0.11607
+[880]	train-rmse:0.00990	val-rmse:0.11604
+[890]	train-rmse:0.00985	val-rmse:0.11603
+[900]	train-rmse:0.00981	val-rmse:0.11604
+[910]	train-rmse:0.00977	val-rmse:0.11592
+[920]	train-rmse:0.00972	val-rmse:0.11590
+[930]	train-rmse:0.00968	val-rmse:0.11591
+[940]	train-rmse:0.00963	val-rmse:0.11582
+[950]	train-rmse:0.00959	val-rmse:0.11583
+[960]	train-rmse:0.00955	val-rmse:0.11584
+[970]	train-rmse:0.00951	val-rmse:0.11577
+[980]	train-rmse:0.00947	val-rmse:0.11580
+[990]	train-rmse:0.00942	val-rmse:0.11571
+[999]	train-rmse:0.00938	val-rmse:0.11565
+Best RMSE for fold 1: 0.1156436845861163 at epoch 998
+
+Processing fold 2/6...
+
+Validation RodID: AN3
+[0]	train-rmse:0.45686	val-rmse:0.82402
+[10]	train-rmse:0.29678	val-rmse:0.59810
+[20]	train-rmse:0.19951	val-rmse:0.44996
+[30]	train-rmse:0.13958	val-rmse:0.34809
+[40]	train-rmse:0.10171	val-rmse:0.27518
+[50]	train-rmse:0.07795	val-rmse:0.22291
+[60]	train-rmse:0.06247	val-rmse:0.18434
+[70]	train-rmse:0.05169	val-rmse:0.15625
+[80]	train-rmse:0.04507	val-rmse:0.13911
+[90]	train-rmse:0.04015	val-rmse:0.12268
+[100]	train-rmse:0.03657	val-rmse:0.11194
+[110]	train-rmse:0.03406	val-rmse:0.10303
+[120]	train-rmse:0.03197	val-rmse:0.09447
+[130]	train-rmse:0.03031	val-rmse:0.08929
+[140]	train-rmse:0.02873	val-rmse:0.08579
+[150]	train-rmse:0.02739	val-rmse:0.08294
+[160]	train-rmse:0.02620	val-rmse:0.07920
+[170]	train-rmse:0.02534	val-rmse:0.07790
+[180]	train-rmse:0.02455	val-rmse:0.07569
+[190]	train-rmse:0.02367	val-rmse:0.07447
+[200]	train-rmse:0.02306	val-rmse:0.07321
+[210]	train-rmse:0.02234	val-rmse:0.07141
+[220]	train-rmse:0.02173	val-rmse:0.07025
+[230]	train-rmse:0.02111	val-rmse:0.06947
+[240]	train-rmse:0.02056	val-rmse:0.06877
+[250]	train-rmse:0.02011	val-rmse:0.06846
+[260]	train-rmse:0.01955	val-rmse:0.06724
+[270]	train-rmse:0.01913	val-rmse:0.06654
+[280]	train-rmse:0.01877	val-rmse:0.06600
+[290]	train-rmse:0.01835	val-rmse:0.06561
+[300]	train-rmse:0.01792	val-rmse:0.06525
+[310]	train-rmse:0.01753	val-rmse:0.06458
+[320]	train-rmse:0.01719	val-rmse:0.06406
+[330]	train-rmse:0.01683	val-rmse:0.06409
+[340]	train-rmse:0.01654	val-rmse:0.06387
+[350]	train-rmse:0.01623	val-rmse:0.06377
+[360]	train-rmse:0.01595	val-rmse:0.06366
+[370]	train-rmse:0.01567	val-rmse:0.06369
+[380]	train-rmse:0.01545	val-rmse:0.06359
+[390]	train-rmse:0.01525	val-rmse:0.06353
+[400]	train-rmse:0.01502	val-rmse:0.06322
+[410]	train-rmse:0.01484	val-rmse:0.06294
+[420]	train-rmse:0.01464	val-rmse:0.06260
+[430]	train-rmse:0.01444	val-rmse:0.06232
+[440]	train-rmse:0.01427	val-rmse:0.06219
+[450]	train-rmse:0.01410	val-rmse:0.06217
+[460]	train-rmse:0.01395	val-rmse:0.06204
+[470]	train-rmse:0.01381	val-rmse:0.06177
+[480]	train-rmse:0.01366	val-rmse:0.06160
+[490]	train-rmse:0.01351	val-rmse:0.06148
+[500]	train-rmse:0.01339	val-rmse:0.06150
+[510]	train-rmse:0.01325	val-rmse:0.06145
+[520]	train-rmse:0.01313	val-rmse:0.06115
+[530]	train-rmse:0.01299	val-rmse:0.06095
+[540]	train-rmse:0.01284	val-rmse:0.06054
+[550]	train-rmse:0.01272	val-rmse:0.06055
+[560]	train-rmse:0.01260	val-rmse:0.06064
+[570]	train-rmse:0.01250	val-rmse:0.06054
+[580]	train-rmse:0.01238	val-rmse:0.06043
+[590]	train-rmse:0.01228	val-rmse:0.06040
+[600]	train-rmse:0.01218	val-rmse:0.06036
+[610]	train-rmse:0.01208	val-rmse:0.06027
+[620]	train-rmse:0.01198	val-rmse:0.06002
+[630]	train-rmse:0.01189	val-rmse:0.05993
+[640]	train-rmse:0.01181	val-rmse:0.05985
+[650]	train-rmse:0.01173	val-rmse:0.05987
+[660]	train-rmse:0.01163	val-rmse:0.05981
+[670]	train-rmse:0.01156	val-rmse:0.05981
+[680]	train-rmse:0.01149	val-rmse:0.05974
+[690]	train-rmse:0.01141	val-rmse:0.05965
+[700]	train-rmse:0.01133	val-rmse:0.05969
+[710]	train-rmse:0.01127	val-rmse:0.05963
+[720]	train-rmse:0.01119	val-rmse:0.05956
+[730]	train-rmse:0.01112	val-rmse:0.05951
+[740]	train-rmse:0.01106	val-rmse:0.05952
+[750]	train-rmse:0.01100	val-rmse:0.05938
+[760]	train-rmse:0.01092	val-rmse:0.05932
+[770]	train-rmse:0.01086	val-rmse:0.05924
+[780]	train-rmse:0.01079	val-rmse:0.05914
+[790]	train-rmse:0.01072	val-rmse:0.05915
+[800]	train-rmse:0.01067	val-rmse:0.05905
+[810]	train-rmse:0.01059	val-rmse:0.05908
+[820]	train-rmse:0.01054	val-rmse:0.05900
+[830]	train-rmse:0.01049	val-rmse:0.05905
+[840]	train-rmse:0.01044	val-rmse:0.05900
+[850]	train-rmse:0.01039	val-rmse:0.05892
+[860]	train-rmse:0.01033	val-rmse:0.05891
+[870]	train-rmse:0.01029	val-rmse:0.05893
+[880]	train-rmse:0.01024	val-rmse:0.05893
+[890]	train-rmse:0.01019	val-rmse:0.05896
+[900]	train-rmse:0.01014	val-rmse:0.05882
+[910]	train-rmse:0.01009	val-rmse:0.05882
+[920]	train-rmse:0.01005	val-rmse:0.05875
+[930]	train-rmse:0.01000	val-rmse:0.05867
+[940]	train-rmse:0.00996	val-rmse:0.05860
+[950]	train-rmse:0.00991	val-rmse:0.05851
+[960]	train-rmse:0.00986	val-rmse:0.05853
+[970]	train-rmse:0.00982	val-rmse:0.05850
+[980]	train-rmse:0.00978	val-rmse:0.05850
+[990]	train-rmse:0.00974	val-rmse:0.05845
+[999]	train-rmse:0.00970	val-rmse:0.05851
+Best RMSE for fold 2: 0.05841841704549377 at epoch 993
+
+Processing fold 3/6...
+
+Validation RodID: AN4
+[0]	train-rmse:0.46479	val-rmse:0.85115
+[10]	train-rmse:0.29996	val-rmse:0.59536
+[20]	train-rmse:0.19980	val-rmse:0.44090
+[30]	train-rmse:0.13948	val-rmse:0.33120
+[40]	train-rmse:0.10022	val-rmse:0.25869
+[50]	train-rmse:0.07598	val-rmse:0.21744
+[60]	train-rmse:0.06009	val-rmse:0.18954
+[70]	train-rmse:0.04924	val-rmse:0.17603
+[80]	train-rmse:0.04195	val-rmse:0.16910
+[90]	train-rmse:0.03660	val-rmse:0.16437
+[100]	train-rmse:0.03265	val-rmse:0.16211
+[110]	train-rmse:0.02998	val-rmse:0.15884
+[120]	train-rmse:0.02797	val-rmse:0.15859
+[130]	train-rmse:0.02629	val-rmse:0.15908
+[140]	train-rmse:0.02503	val-rmse:0.15898
+[150]	train-rmse:0.02396	val-rmse:0.15940
+[160]	train-rmse:0.02293	val-rmse:0.16025
+[170]	train-rmse:0.02197	val-rmse:0.16065
+[180]	train-rmse:0.02119	val-rmse:0.15976
+[190]	train-rmse:0.02053	val-rmse:0.15946
+[200]	train-rmse:0.02000	val-rmse:0.15906
+[210]	train-rmse:0.01950	val-rmse:0.15833
+[220]	train-rmse:0.01899	val-rmse:0.15739
+[230]	train-rmse:0.01854	val-rmse:0.15731
+[240]	train-rmse:0.01814	val-rmse:0.15734
+[250]	train-rmse:0.01773	val-rmse:0.15755
+[260]	train-rmse:0.01736	val-rmse:0.15799
+[270]	train-rmse:0.01702	val-rmse:0.15749
+[280]	train-rmse:0.01670	val-rmse:0.15691
+[290]	train-rmse:0.01639	val-rmse:0.15681
+[300]	train-rmse:0.01606	val-rmse:0.15668
+[310]	train-rmse:0.01577	val-rmse:0.15654
+[320]	train-rmse:0.01550	val-rmse:0.15605
+[330]	train-rmse:0.01523	val-rmse:0.15582
+[340]	train-rmse:0.01500	val-rmse:0.15523
+[350]	train-rmse:0.01477	val-rmse:0.15514
+[360]	train-rmse:0.01457	val-rmse:0.15504
+[370]	train-rmse:0.01436	val-rmse:0.15488
+[380]	train-rmse:0.01416	val-rmse:0.15465
+[390]	train-rmse:0.01395	val-rmse:0.15397
+[400]	train-rmse:0.01379	val-rmse:0.15393
+[410]	train-rmse:0.01358	val-rmse:0.15377
+[420]	train-rmse:0.01343	val-rmse:0.15353
+[430]	train-rmse:0.01323	val-rmse:0.15317
+[440]	train-rmse:0.01308	val-rmse:0.15319
+[450]	train-rmse:0.01294	val-rmse:0.15282
+[460]	train-rmse:0.01281	val-rmse:0.15237
+[470]	train-rmse:0.01267	val-rmse:0.15220
+[480]	train-rmse:0.01252	val-rmse:0.15224
+[490]	train-rmse:0.01239	val-rmse:0.15195
+[500]	train-rmse:0.01227	val-rmse:0.15179
+[510]	train-rmse:0.01215	val-rmse:0.15165
+[520]	train-rmse:0.01202	val-rmse:0.15133
+[530]	train-rmse:0.01191	val-rmse:0.15104
+[540]	train-rmse:0.01179	val-rmse:0.15083
+[550]	train-rmse:0.01169	val-rmse:0.15070
+[560]	train-rmse:0.01158	val-rmse:0.15037
+[570]	train-rmse:0.01149	val-rmse:0.15016
+[580]	train-rmse:0.01139	val-rmse:0.14980
+[590]	train-rmse:0.01130	val-rmse:0.14942
+[600]	train-rmse:0.01120	val-rmse:0.14890
+[610]	train-rmse:0.01111	val-rmse:0.14861
+[620]	train-rmse:0.01101	val-rmse:0.14832
+[630]	train-rmse:0.01092	val-rmse:0.14798
+[640]	train-rmse:0.01084	val-rmse:0.14787
+[650]	train-rmse:0.01075	val-rmse:0.14756
+[660]	train-rmse:0.01067	val-rmse:0.14739
+[670]	train-rmse:0.01057	val-rmse:0.14718
+[680]	train-rmse:0.01050	val-rmse:0.14703
+[690]	train-rmse:0.01041	val-rmse:0.14693
+[700]	train-rmse:0.01034	val-rmse:0.14682
+[710]	train-rmse:0.01027	val-rmse:0.14637
+[720]	train-rmse:0.01021	val-rmse:0.14637
+[730]	train-rmse:0.01014	val-rmse:0.14623
+[740]	train-rmse:0.01008	val-rmse:0.14593
+[750]	train-rmse:0.01000	val-rmse:0.14580
+[760]	train-rmse:0.00994	val-rmse:0.14570
+[770]	train-rmse:0.00987	val-rmse:0.14532
+[780]	train-rmse:0.00982	val-rmse:0.14511
+[790]	train-rmse:0.00975	val-rmse:0.14501
+[800]	train-rmse:0.00970	val-rmse:0.14486
+[810]	train-rmse:0.00965	val-rmse:0.14483
+[820]	train-rmse:0.00958	val-rmse:0.14477
+[830]	train-rmse:0.00954	val-rmse:0.14459
+[840]	train-rmse:0.00948	val-rmse:0.14427
+[850]	train-rmse:0.00942	val-rmse:0.14425
+[860]	train-rmse:0.00937	val-rmse:0.14408
+[870]	train-rmse:0.00931	val-rmse:0.14381
+[880]	train-rmse:0.00927	val-rmse:0.14362
+[890]	train-rmse:0.00922	val-rmse:0.14325
+[900]	train-rmse:0.00917	val-rmse:0.14300
+[910]	train-rmse:0.00913	val-rmse:0.14285
+[920]	train-rmse:0.00908	val-rmse:0.14285
+[930]	train-rmse:0.00903	val-rmse:0.14243
+[940]	train-rmse:0.00899	val-rmse:0.14238
+[950]	train-rmse:0.00895	val-rmse:0.14230
+[960]	train-rmse:0.00890	val-rmse:0.14233
+[970]	train-rmse:0.00885	val-rmse:0.14203
+[980]	train-rmse:0.00881	val-rmse:0.14177
+[990]	train-rmse:0.00877	val-rmse:0.14177
+[999]	train-rmse:0.00873	val-rmse:0.14167
+Best RMSE for fold 3: 0.14167118940140155 at epoch 1000
+
+Processing fold 4/6...
+
+Validation RodID: AN8
+[0]	train-rmse:0.45730	val-rmse:0.84523
+[10]	train-rmse:0.29661	val-rmse:0.61606
+[20]	train-rmse:0.19847	val-rmse:0.47199
+[30]	train-rmse:0.13899	val-rmse:0.36979
+[40]	train-rmse:0.10132	val-rmse:0.29388
+[50]	train-rmse:0.07789	val-rmse:0.23795
+[60]	train-rmse:0.06252	val-rmse:0.19706
+[70]	train-rmse:0.05187	val-rmse:0.16790
+[80]	train-rmse:0.04516	val-rmse:0.14804
+[90]	train-rmse:0.03968	val-rmse:0.12919
+[100]	train-rmse:0.03595	val-rmse:0.11343
+[110]	train-rmse:0.03309	val-rmse:0.10305
+[120]	train-rmse:0.03118	val-rmse:0.09494
+[130]	train-rmse:0.02922	val-rmse:0.08863
+[140]	train-rmse:0.02792	val-rmse:0.08340
+[150]	train-rmse:0.02659	val-rmse:0.07887
+[160]	train-rmse:0.02561	val-rmse:0.07565
+[170]	train-rmse:0.02447	val-rmse:0.07119
+[180]	train-rmse:0.02373	val-rmse:0.06898
+[190]	train-rmse:0.02293	val-rmse:0.06672
+[200]	train-rmse:0.02221	val-rmse:0.06451
+[210]	train-rmse:0.02168	val-rmse:0.06225
+[220]	train-rmse:0.02122	val-rmse:0.06046
+[230]	train-rmse:0.02074	val-rmse:0.05931
+[240]	train-rmse:0.02036	val-rmse:0.05873
+[250]	train-rmse:0.01995	val-rmse:0.05804
+[260]	train-rmse:0.01955	val-rmse:0.05714
+[270]	train-rmse:0.01920	val-rmse:0.05637
+[280]	train-rmse:0.01884	val-rmse:0.05543
+[290]	train-rmse:0.01850	val-rmse:0.05464
+[300]	train-rmse:0.01811	val-rmse:0.05400
+[310]	train-rmse:0.01776	val-rmse:0.05339
+[320]	train-rmse:0.01751	val-rmse:0.05285
+[330]	train-rmse:0.01718	val-rmse:0.05243
+[340]	train-rmse:0.01692	val-rmse:0.05183
+[350]	train-rmse:0.01666	val-rmse:0.05124
+[360]	train-rmse:0.01643	val-rmse:0.05100
+[370]	train-rmse:0.01621	val-rmse:0.05073
+[380]	train-rmse:0.01596	val-rmse:0.05054
+[390]	train-rmse:0.01576	val-rmse:0.05021
+[400]	train-rmse:0.01554	val-rmse:0.04997
+[410]	train-rmse:0.01531	val-rmse:0.04965
+[420]	train-rmse:0.01514	val-rmse:0.04944
+[430]	train-rmse:0.01492	val-rmse:0.04922
+[440]	train-rmse:0.01472	val-rmse:0.04901
+[450]	train-rmse:0.01454	val-rmse:0.04879
+[460]	train-rmse:0.01437	val-rmse:0.04872
+[470]	train-rmse:0.01421	val-rmse:0.04859
+[480]	train-rmse:0.01404	val-rmse:0.04825
+[490]	train-rmse:0.01389	val-rmse:0.04811
+[500]	train-rmse:0.01377	val-rmse:0.04790
+[510]	train-rmse:0.01362	val-rmse:0.04786
+[520]	train-rmse:0.01346	val-rmse:0.04782
+[530]	train-rmse:0.01335	val-rmse:0.04777
+[540]	train-rmse:0.01320	val-rmse:0.04768
+[550]	train-rmse:0.01308	val-rmse:0.04765
+[560]	train-rmse:0.01295	val-rmse:0.04762
+[570]	train-rmse:0.01283	val-rmse:0.04743
+[580]	train-rmse:0.01271	val-rmse:0.04746
+[590]	train-rmse:0.01262	val-rmse:0.04740
+[600]	train-rmse:0.01250	val-rmse:0.04739
+[610]	train-rmse:0.01240	val-rmse:0.04740
+[620]	train-rmse:0.01230	val-rmse:0.04737
+[630]	train-rmse:0.01221	val-rmse:0.04712
+[640]	train-rmse:0.01212	val-rmse:0.04713
+[650]	train-rmse:0.01200	val-rmse:0.04723
+[660]	train-rmse:0.01190	val-rmse:0.04725
+[670]	train-rmse:0.01180	val-rmse:0.04714
+[680]	train-rmse:0.01172	val-rmse:0.04711
+[690]	train-rmse:0.01165	val-rmse:0.04705
+[700]	train-rmse:0.01156	val-rmse:0.04709
+[710]	train-rmse:0.01148	val-rmse:0.04709
+[720]	train-rmse:0.01141	val-rmse:0.04716
+[730]	train-rmse:0.01133	val-rmse:0.04701
+[740]	train-rmse:0.01126	val-rmse:0.04733
+[750]	train-rmse:0.01119	val-rmse:0.04741
+[760]	train-rmse:0.01113	val-rmse:0.04755
+[770]	train-rmse:0.01104	val-rmse:0.04772
+[780]	train-rmse:0.01097	val-rmse:0.04772
+[790]	train-rmse:0.01090	val-rmse:0.04761
+[800]	train-rmse:0.01084	val-rmse:0.04760
+[810]	train-rmse:0.01078	val-rmse:0.04758
+[820]	train-rmse:0.01071	val-rmse:0.04752
+[830]	train-rmse:0.01065	val-rmse:0.04746
+[840]	train-rmse:0.01059	val-rmse:0.04744
+[850]	train-rmse:0.01052	val-rmse:0.04754
+[860]	train-rmse:0.01046	val-rmse:0.04762
+[870]	train-rmse:0.01041	val-rmse:0.04759
+[880]	train-rmse:0.01036	val-rmse:0.04767
+[890]	train-rmse:0.01029	val-rmse:0.04782
+[900]	train-rmse:0.01024	val-rmse:0.04788
+[910]	train-rmse:0.01019	val-rmse:0.04794
+[920]	train-rmse:0.01014	val-rmse:0.04804
+[930]	train-rmse:0.01009	val-rmse:0.04797
+[940]	train-rmse:0.01004	val-rmse:0.04803
+[950]	train-rmse:0.01000	val-rmse:0.04802
+[960]	train-rmse:0.00995	val-rmse:0.04791
+[970]	train-rmse:0.00990	val-rmse:0.04804
+[980]	train-rmse:0.00985	val-rmse:0.04811
+[990]	train-rmse:0.00980	val-rmse:0.04809
+[999]	train-rmse:0.00976	val-rmse:0.04814
+Best RMSE for fold 4: 0.04696266694707318 at epoch 684
+
+Processing fold 5/6...
+
+Validation RodID: AN10
+[0]	train-rmse:0.40161	val-rmse:0.95650
+[10]	train-rmse:0.26302	val-rmse:0.68819
+[20]	train-rmse:0.17822	val-rmse:0.51589
+[30]	train-rmse:0.12615	val-rmse:0.40273
+[40]	train-rmse:0.09278	val-rmse:0.32809
+[50]	train-rmse:0.07157	val-rmse:0.27531
+[60]	train-rmse:0.05724	val-rmse:0.23436
+[70]	train-rmse:0.04783	val-rmse:0.20797
+[80]	train-rmse:0.04129	val-rmse:0.18858
+[90]	train-rmse:0.03630	val-rmse:0.17679
+[100]	train-rmse:0.03300	val-rmse:0.16816
+[110]	train-rmse:0.03044	val-rmse:0.15924
+[120]	train-rmse:0.02841	val-rmse:0.15292
+[130]	train-rmse:0.02675	val-rmse:0.14809
+[140]	train-rmse:0.02550	val-rmse:0.14380
+[150]	train-rmse:0.02444	val-rmse:0.14083
+[160]	train-rmse:0.02334	val-rmse:0.13777
+[170]	train-rmse:0.02258	val-rmse:0.13630
+[180]	train-rmse:0.02190	val-rmse:0.13412
+[190]	train-rmse:0.02129	val-rmse:0.13202
+[200]	train-rmse:0.02075	val-rmse:0.13061
+[210]	train-rmse:0.02016	val-rmse:0.12981
+[220]	train-rmse:0.01959	val-rmse:0.12849
+[230]	train-rmse:0.01906	val-rmse:0.12754
+[240]	train-rmse:0.01867	val-rmse:0.12665
+[250]	train-rmse:0.01825	val-rmse:0.12584
+[260]	train-rmse:0.01789	val-rmse:0.12527
+[270]	train-rmse:0.01754	val-rmse:0.12512
+[280]	train-rmse:0.01721	val-rmse:0.12468
+[290]	train-rmse:0.01692	val-rmse:0.12423
+[300]	train-rmse:0.01660	val-rmse:0.12396
+[310]	train-rmse:0.01631	val-rmse:0.12345
+[320]	train-rmse:0.01601	val-rmse:0.12313
+[330]	train-rmse:0.01570	val-rmse:0.12310
+[340]	train-rmse:0.01551	val-rmse:0.12277
+[350]	train-rmse:0.01525	val-rmse:0.12212
+[360]	train-rmse:0.01503	val-rmse:0.12204
+[370]	train-rmse:0.01483	val-rmse:0.12162
+[380]	train-rmse:0.01459	val-rmse:0.12150
+[390]	train-rmse:0.01439	val-rmse:0.12154
+[400]	train-rmse:0.01422	val-rmse:0.12128
+[410]	train-rmse:0.01403	val-rmse:0.12111
+[420]	train-rmse:0.01386	val-rmse:0.12098
+[430]	train-rmse:0.01370	val-rmse:0.12077
+[440]	train-rmse:0.01351	val-rmse:0.12073
+[450]	train-rmse:0.01332	val-rmse:0.12051
+[460]	train-rmse:0.01314	val-rmse:0.12065
+[470]	train-rmse:0.01300	val-rmse:0.12071
+[480]	train-rmse:0.01286	val-rmse:0.12088
+[490]	train-rmse:0.01269	val-rmse:0.12066
+[500]	train-rmse:0.01255	val-rmse:0.12033
+[510]	train-rmse:0.01242	val-rmse:0.11984
+[520]	train-rmse:0.01230	val-rmse:0.11974
+[530]	train-rmse:0.01216	val-rmse:0.11968
+[540]	train-rmse:0.01205	val-rmse:0.11939
+[550]	train-rmse:0.01193	val-rmse:0.11944
+[560]	train-rmse:0.01182	val-rmse:0.11938
+[570]	train-rmse:0.01172	val-rmse:0.11944
+[580]	train-rmse:0.01161	val-rmse:0.11957
+[590]	train-rmse:0.01152	val-rmse:0.11954
+[600]	train-rmse:0.01141	val-rmse:0.11952
+[610]	train-rmse:0.01133	val-rmse:0.11939
+[620]	train-rmse:0.01124	val-rmse:0.11938
+[630]	train-rmse:0.01115	val-rmse:0.11942
+[640]	train-rmse:0.01106	val-rmse:0.11943
+[650]	train-rmse:0.01096	val-rmse:0.11922
+[660]	train-rmse:0.01088	val-rmse:0.11908
+[670]	train-rmse:0.01080	val-rmse:0.11902
+[680]	train-rmse:0.01072	val-rmse:0.11889
+[690]	train-rmse:0.01065	val-rmse:0.11889
+[700]	train-rmse:0.01056	val-rmse:0.11877
+[710]	train-rmse:0.01048	val-rmse:0.11884
+[720]	train-rmse:0.01041	val-rmse:0.11871
+[730]	train-rmse:0.01033	val-rmse:0.11859
+[740]	train-rmse:0.01025	val-rmse:0.11853
+[750]	train-rmse:0.01020	val-rmse:0.11846
+[760]	train-rmse:0.01014	val-rmse:0.11834
+[770]	train-rmse:0.01008	val-rmse:0.11837
+[780]	train-rmse:0.01001	val-rmse:0.11832
+[790]	train-rmse:0.00996	val-rmse:0.11834
+[800]	train-rmse:0.00992	val-rmse:0.11813
+[810]	train-rmse:0.00986	val-rmse:0.11825
+[820]	train-rmse:0.00981	val-rmse:0.11814
+[830]	train-rmse:0.00976	val-rmse:0.11816
+[840]	train-rmse:0.00972	val-rmse:0.11792
+[850]	train-rmse:0.00968	val-rmse:0.11779
+[860]	train-rmse:0.00963	val-rmse:0.11778
+[870]	train-rmse:0.00958	val-rmse:0.11781
+[880]	train-rmse:0.00952	val-rmse:0.11760
+[890]	train-rmse:0.00947	val-rmse:0.11767
+[900]	train-rmse:0.00942	val-rmse:0.11763
+[910]	train-rmse:0.00937	val-rmse:0.11771
+[920]	train-rmse:0.00932	val-rmse:0.11772
+[930]	train-rmse:0.00928	val-rmse:0.11762
+[940]	train-rmse:0.00924	val-rmse:0.11763
+[950]	train-rmse:0.00919	val-rmse:0.11767
+[960]	train-rmse:0.00914	val-rmse:0.11752
+[970]	train-rmse:0.00910	val-rmse:0.11750
+[980]	train-rmse:0.00905	val-rmse:0.11738
+[990]	train-rmse:0.00901	val-rmse:0.11726
+[999]	train-rmse:0.00898	val-rmse:0.11732
+Best RMSE for fold 5: 0.1172560300885521 at epoch 990
+
+Processing fold 6/6...
+
+Validation RodID: AN11
+[0]	train-rmse:0.43593	val-rmse:1.24878
+[10]	train-rmse:0.28233	val-rmse:0.92008
+[20]	train-rmse:0.18942	val-rmse:0.69395
+[30]	train-rmse:0.13352	val-rmse:0.51647
+[40]	train-rmse:0.09757	val-rmse:0.40788
+[50]	train-rmse:0.07484	val-rmse:0.33147
+[60]	train-rmse:0.05985	val-rmse:0.27478
+[70]	train-rmse:0.04967	val-rmse:0.23036
+[80]	train-rmse:0.04310	val-rmse:0.19175
+[90]	train-rmse:0.03852	val-rmse:0.16510
+[100]	train-rmse:0.03523	val-rmse:0.14962
+[110]	train-rmse:0.03295	val-rmse:0.13964
+[120]	train-rmse:0.03089	val-rmse:0.13294
+[130]	train-rmse:0.02886	val-rmse:0.12571
+[140]	train-rmse:0.02729	val-rmse:0.12451
+[150]	train-rmse:0.02609	val-rmse:0.12016
+[160]	train-rmse:0.02499	val-rmse:0.11927
+[170]	train-rmse:0.02413	val-rmse:0.11714
+[180]	train-rmse:0.02341	val-rmse:0.11360
+[190]	train-rmse:0.02277	val-rmse:0.11126
+[200]	train-rmse:0.02216	val-rmse:0.11027
+[210]	train-rmse:0.02149	val-rmse:0.10752
+[220]	train-rmse:0.02088	val-rmse:0.10697
+[230]	train-rmse:0.02036	val-rmse:0.10550
+[240]	train-rmse:0.01980	val-rmse:0.10358
+[250]	train-rmse:0.01930	val-rmse:0.10101
+[260]	train-rmse:0.01880	val-rmse:0.10033
+[270]	train-rmse:0.01838	val-rmse:0.09945
+[280]	train-rmse:0.01793	val-rmse:0.09880
+[290]	train-rmse:0.01764	val-rmse:0.09778
+[300]	train-rmse:0.01732	val-rmse:0.09718
+[310]	train-rmse:0.01699	val-rmse:0.09686
+[320]	train-rmse:0.01670	val-rmse:0.09589
+[330]	train-rmse:0.01636	val-rmse:0.09564
+[340]	train-rmse:0.01609	val-rmse:0.09583
+[350]	train-rmse:0.01586	val-rmse:0.09646
+[360]	train-rmse:0.01561	val-rmse:0.09603
+[370]	train-rmse:0.01539	val-rmse:0.09612
+[380]	train-rmse:0.01516	val-rmse:0.09553
+[390]	train-rmse:0.01497	val-rmse:0.09511
+[400]	train-rmse:0.01481	val-rmse:0.09459
+[410]	train-rmse:0.01461	val-rmse:0.09397
+[420]	train-rmse:0.01440	val-rmse:0.09397
+[430]	train-rmse:0.01421	val-rmse:0.09425
+[440]	train-rmse:0.01404	val-rmse:0.09383
+[450]	train-rmse:0.01390	val-rmse:0.09364
+[460]	train-rmse:0.01372	val-rmse:0.09249
+[470]	train-rmse:0.01357	val-rmse:0.09237
+[480]	train-rmse:0.01341	val-rmse:0.09100
+[490]	train-rmse:0.01328	val-rmse:0.09091
+[500]	train-rmse:0.01314	val-rmse:0.09091
+[510]	train-rmse:0.01302	val-rmse:0.09096
+[520]	train-rmse:0.01290	val-rmse:0.09073
+[530]	train-rmse:0.01275	val-rmse:0.09080
+[540]	train-rmse:0.01262	val-rmse:0.09045
+[550]	train-rmse:0.01250	val-rmse:0.08985
+[560]	train-rmse:0.01239	val-rmse:0.09004
+[570]	train-rmse:0.01227	val-rmse:0.08960
+[580]	train-rmse:0.01216	val-rmse:0.08918
+[590]	train-rmse:0.01204	val-rmse:0.08900
+[600]	train-rmse:0.01194	val-rmse:0.08916
+[610]	train-rmse:0.01184	val-rmse:0.08919
+[620]	train-rmse:0.01178	val-rmse:0.08915
+[630]	train-rmse:0.01169	val-rmse:0.08898
+[640]	train-rmse:0.01160	val-rmse:0.08864
+[650]	train-rmse:0.01152	val-rmse:0.08847
+[660]	train-rmse:0.01144	val-rmse:0.08812
+[670]	train-rmse:0.01135	val-rmse:0.08800
+[680]	train-rmse:0.01128	val-rmse:0.08746
+[690]	train-rmse:0.01122	val-rmse:0.08755
+[700]	train-rmse:0.01113	val-rmse:0.08735
+[710]	train-rmse:0.01106	val-rmse:0.08694
+[720]	train-rmse:0.01099	val-rmse:0.08698
+[730]	train-rmse:0.01091	val-rmse:0.08681
+[740]	train-rmse:0.01083	val-rmse:0.08673
+[750]	train-rmse:0.01077	val-rmse:0.08670
+[760]	train-rmse:0.01070	val-rmse:0.08656
+[770]	train-rmse:0.01062	val-rmse:0.08621
+[780]	train-rmse:0.01056	val-rmse:0.08620
+[790]	train-rmse:0.01049	val-rmse:0.08597
+[800]	train-rmse:0.01044	val-rmse:0.08582
+[810]	train-rmse:0.01036	val-rmse:0.08586
+[820]	train-rmse:0.01028	val-rmse:0.08612
+[830]	train-rmse:0.01023	val-rmse:0.08645
+[840]	train-rmse:0.01018	val-rmse:0.08606
+[850]	train-rmse:0.01012	val-rmse:0.08582
+[860]	train-rmse:0.01006	val-rmse:0.08583
+[870]	train-rmse:0.01000	val-rmse:0.08581
+[880]	train-rmse:0.00995	val-rmse:0.08574
+[890]	train-rmse:0.00990	val-rmse:0.08539
+[900]	train-rmse:0.00985	val-rmse:0.08511
+[910]	train-rmse:0.00979	val-rmse:0.08499
+[920]	train-rmse:0.00974	val-rmse:0.08460
+[930]	train-rmse:0.00969	val-rmse:0.08454
+[940]	train-rmse:0.00964	val-rmse:0.08439
+[950]	train-rmse:0.00960	val-rmse:0.08440
+[960]	train-rmse:0.00955	val-rmse:0.08453
+[970]	train-rmse:0.00952	val-rmse:0.08461
+[980]	train-rmse:0.00946	val-rmse:0.08454
+[990]	train-rmse:0.00942	val-rmse:0.08461
+[999]	train-rmse:0.00938	val-rmse:0.08454
+Best RMSE for fold 6: 0.08434959741382438 at epoch 939
+
+
+
+----- Model Final Training -----
+
+Starting final training on the entire training set...
+
+Model saved!
+
+--- Training Times ---
+Hypertuning: 4.69 minutes
+Cross Validation: 33.86 minutes
+Final Training: 4.55 minutes

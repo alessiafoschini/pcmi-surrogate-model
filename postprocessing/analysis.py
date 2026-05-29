@@ -30,11 +30,13 @@ from preprocessing.split_data import data_splitting
 from preprocessing.create_feat import feat_eng
 
 
+model_arch = input("Choose the model architecture (d for DEEP, s for SHALLOW):\n >> ")
+print('\n')
 
 
 # Paths to reach the files 
 data_path = os.path.join(parent_dir, "data", "pcmi_dataset.csv")
-model_path = os.path.join(parent_dir, "xgb_model.json")
+model_path = os.path.join(parent_dir, f"xgb_model_{model_arch}.json")
 scaler_path = os.path.join(parent_dir, "target_scaler.pkl")
 
 #-----------------------------------------
@@ -90,7 +92,7 @@ print(f"\nFinal RMSE on the test set: {rmse}")
 
 r2 = r2_score(y_test, preds)
 print(f"R² Score on the test set: {r2}")
-
+print('\n')
 
 # COMPUTE STANDARDIZED RESIDUALS 
 std_residuals = (preds - y_test) / rmse 
@@ -189,7 +191,7 @@ for test_rod in test_rods:
             trace.line.width = 3
 
     # save the html file in the shared filesystem
-    output_file = f"RidgeHeight_section{section_id}_{file_index}.html"
+    output_file = f"RidgeHeight_section{section_id}_{model_arch}.html"
     os.makedirs(rod_output_folder, exist_ok=True)
     full_path = os.path.join(rod_output_folder, output_file)
     fig.write_html(full_path)
@@ -346,7 +348,7 @@ plt.legend(
 
 plt.tight_layout()
 
-plt.savefig(f'predictions_{file_index}.svg', format='svg', bbox_inches='tight')
+plt.savefig(f'predictions_{model_arch}.svg', format='svg', bbox_inches='tight')
 #-------------------------------------------
 
 
@@ -358,20 +360,26 @@ output_folder = "predictions_scatter_plots"
 os.makedirs(output_folder, exist_ok=True)
 
 for i in range(X_test.shape[1]):
+    
     feature_test = X_test[:, i]
+    
     plt.figure(figsize=(10, 6))
+    
     sc = plt.scatter(y_test, preds, c=feature_test, cmap='turbo', alpha=0.6, s=20)
+    
     plt.colorbar(sc, label=features[i])
+    
     plt.plot([y_test.min(), y_test.max()], 
               [y_test.min(), y_test.max()], 
               'r--', lw=2, label='Perfect coincidence')
+    
     plt.xlabel('Actual Values')
     plt.ylabel('Predictions')
     plt.title(f'Predictions vs Actual Values\n RMSE = {rmse:.4e}')
     plt.legend()
     plt.grid(True, alpha=0.3)
 
-    file_path = os.path.join(output_folder, f'pred_scatter_{features[i]}_{file_index}.png')
+    file_path = os.path.join(output_folder, f'pred_scatter_{features[i]}_{model_arch}.png')
     plt.savefig(file_path, dpi=150)
 #-------------------------------------------
 
@@ -393,7 +401,7 @@ plt.title(f'Predictions vs Actual Values Distribution')
 plt.legend()
 plt.grid(True, alpha=0.4)
 
-plt.savefig(f'pred_distr_{file_index}.png', dpi=150)
+plt.savefig(f'pred_distr_{model_arch}.png', dpi=150)
 #-------------------------------------------
 
 
@@ -405,7 +413,7 @@ plt.savefig(f'pred_distr_{file_index}.png', dpi=150)
 #-------------------------------------------
 # PLOT HISTOGRAM OF RESIDUALS (NORMALITY CHECK)
 
-fig = plt.figure(figsize=(10, 8))
+fig = plt.figure(figsize=(10, 6))
 
 fig.suptitle(
     f'Residuals Analysis: Normality and Homoscedasticity Checks\n RMSE = {rmse:.4e}', 
@@ -432,7 +440,7 @@ preds_outliers = pd.Series(preds[outlier_mask], name = 'Predictions').reset_inde
 residuals_outliers = pd.Series(std_residuals[outlier_mask], name='StandardizedResiduals').reset_index(drop=True)
 
 outliers_df = pd.concat([feature_outliers, target_outliers, preds_outliers, residuals_outliers], axis=1)
-outliers_df.to_csv(f"difficult_to_predict_{file_index}.csv", sep = ";", index=False)
+outliers_df.to_csv(f"difficult_to_predict_{model_arch}.csv", sep = ";", index=False)
 
 
 # FIT WITH NORMAL DISTRIBUTION 
@@ -491,12 +499,12 @@ for sect_id, info in sections.items():
     print(f"P-value: {p_val:.4e}\n")
  
 ax1.set_ylabel('Density', labelpad=4)
-ax1.set_ylim(0, 1.2)
+ax1.set_ylim(0, 1.6)
 
-ax1_top.set_ylim(-0.6, 0.6) # top half starts from the middle
+ax1_top.set_ylim(-0.8, 0.8) # top half starts from the middle
 
-ax1.set_yticks([0, 0.2, 0.4, 0.6])
-ax1_top.set_yticks([0, 0.2, 0.4, 0.6])
+ax1.set_yticks([0, 0.2, 0.4, 0.6, 0.8])
+ax1_top.set_yticks([0, 0.2, 0.4, 0.6, 0.8])
 
 ax1.grid(True, which='major', axis='both', alpha=0.4)
 ax1_top.grid(True, which='major', axis='y', alpha=0.4)
@@ -574,4 +582,4 @@ plt.grid(True, alpha=0.4)
 
 plt.tight_layout()
 
-plt.savefig(f'residuals_{file_index}.svg', format='svg', bbox_inches='tight')
+plt.savefig(f'residuals_{model_arch}.svg', format='svg', bbox_inches='tight')

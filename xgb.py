@@ -423,10 +423,9 @@ final_training = final_xgb.fit(X_train, y_train_scaled, verbose=0, sample_weight
 execution_times['Final Training'] = (time.time() - start_final_train) / 60
 
 
-final_xgb.save_model('xgb_model.json')
+final_xgb.save_model(f'xgb_model_{model_arch}.json')
 print("\nModel saved!")
 #-------------------------------------------
-
 
 
 
