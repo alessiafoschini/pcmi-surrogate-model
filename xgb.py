@@ -110,11 +110,20 @@ print(f"Test set dimension: {y_test.shape}")
 scaler = RobustScaler()
 y_train_scaled = scaler.fit_transform(y_train.reshape(-1, 1)).ravel()
 
-# Save scaler 
-joblib.dump(scaler, "target_scaler.pkl")
-
+# Save scaler
 median_val = scaler.center_[0]
 iqr_val = scaler.scale_[0]
+
+
+scaler_params = {
+    "scaler_type": "RobustScaler",
+    "center": float(median_val), 
+    "scale": float(iqr_val)    
+}
+
+with open("target_scaler.json", "w", encoding="utf-8") as f:
+    json.dump(scaler_params, f, indent=4)
+
 
 print(f"\nMedian Scaler: {median_val}")
 print(f"Interquartile Range (IQR) Scaler: {iqr_val}")
