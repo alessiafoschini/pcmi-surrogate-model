@@ -111,6 +111,9 @@ scaler = RobustScaler()
 y_train_scaled = scaler.fit_transform(y_train.reshape(-1, 1)).ravel()
 
 # Save scaler
+joblib.dump(scaler, "target_scaler.pkl")
+
+
 median_val = scaler.center_[0]
 iqr_val = scaler.scale_[0]
 
