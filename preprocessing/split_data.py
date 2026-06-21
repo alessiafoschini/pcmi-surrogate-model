@@ -11,7 +11,7 @@ def data_splitting(df):
     
     # Each rod is in one set only (to avoid data leakage)
     # Choose the test rods: they must be well-contained within the training data domain
-    test_rods = [1]
+    test_rods = [2]
 
     all_rods = df['RodID'].unique().tolist()
 
@@ -33,36 +33,40 @@ def data_splitting(df):
     # Divide the dataset into training and test sets based on rodID
     train_df = (df[df["RodID"].isin(train_rods)].reset_index(drop=True))
     test_df = df[df["RodID"].isin(test_rods)].reset_index(drop=True) # no sampling --> for plotting
+
+    # print number of samples in each set
+    print(f'\nNumber of samples in training set: {len(train_df)}')
+    print(f'Number of samples in test set: {len(test_df)}')
     #-------------------------------------------
 
     #-------------------------------------------
     # SPLIT FEATURES AND TARGET
 
     features = [
-        #"Timesteps",
-        "AverageBurnup",
-        "AveragePower",
-        #"AveragePowerRate",
-        #"HoldTime",
-        #"IntegratedPower",
-        #"AverageRodPressure",
-        "FGR",
-        #"InterfaceP_mid", 
-        "InterfaceP_end",
-        #"GapWidth_mid",
-        #"GapWidth_end",
-        #"TimeSinceClosure", 
-        #"CladInnerTemp_mid",
-        #"CladInnerTemp_end",
-        #"CladRadDisp_mid",
-        "CladRadDisp_end", 
-        #"CladInnerStress_r_mid",
-        "CladInnerStress_r_end",
-        #"CladInnerStrain_r_mid",
-        #"CladInnerStrain_r_end",
-        #"YoungsModulus_end",
-        #"CladInnerCreep_r_mid",
-        #"CladInnerCreep_r_end"
+    #"Timesteps",
+    "AverageBurnup",
+    "AveragePower",
+    #"AveragePowerRate",
+    #"HoldTime",
+    #"IntegratedPower",
+    #"AverageRodPressure",
+    "FGR",
+    #"InterfaceP_mid", 
+    "InterfaceP_end",
+    #"GapWidth_mid",
+    #"GapWidth_end",
+    #"TimeSinceClosure", 
+    #"CladInnerTemp_mid",
+    #"CladInnerTemp_end",
+    #"CladRadDisp_mid",
+    "CladRadDisp_end", 
+    #"CladInnerStress_r_mid",
+    "CladInnerStress_r_end",
+    #"CladInnerStrain_r_mid",
+    #"CladInnerStrain_r_end",
+    #"YoungsModulus_end",
+    #"CladInnerCreep_r_mid",
+    #"CladInnerCreep_r_end"
     ]
     
     print('\n')
@@ -84,7 +88,7 @@ def data_splitting(df):
         test_min = test_df[feat].min()
         test_max = test_df[feat].max()  
 
-        if test_min > train_min or test_max < train_max:
+        if test_min > train_min and test_max < train_max:
             in_range = 'YES'
         else:
             in_range = 'NO'
