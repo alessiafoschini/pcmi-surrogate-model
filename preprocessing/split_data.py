@@ -11,7 +11,7 @@ def data_splitting(df):
     
     # Each rod is in one set only (to avoid data leakage)
     # Choose the test rods: they must be well-contained within the training data domain
-    test_rods = [2]
+    test_rods = [1]
 
     all_rods = df['RodID'].unique().tolist()
 
@@ -88,7 +88,7 @@ def data_splitting(df):
         test_min = test_df[feat].min()
         test_max = test_df[feat].max()  
 
-        if test_min > train_min and test_max < train_max:
+        if test_min >= train_min and test_max <= train_max:
             in_range = 'YES'
         else:
             in_range = 'NO'
