@@ -30,7 +30,7 @@ Navigate to the 'preprocessing/' directory:
 Inside this folder, the workflow is divided in two phases:
 
 - Data inspection: 'plot_time.py', 'plot_distr.py', 'find_corr.py'
-- Data modification: 'create_feat.py', 'balance_data.py', 'split_data.py'
+- Data modification (AUXILIARY SCRIPTS): 'create_feat.py', 'balance_data.py', 'split_data.py'
 
 
 ### 2. Model Training and Validation
